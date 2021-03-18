@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex justify-content-end mt-4">
+    <!-- <div class="d-flex justify-content-end mt-4">
       <el-dropdown trigger="click">
         <span class="el-dropdown-link">
           <i class="el-icon-more icon"></i>
@@ -32,10 +32,10 @@
           </el-row>
         </el-dropdown-menu>
       </el-dropdown>
-    </div>
-
+    </div> -->
+    <!-- 
     <clientaddclient-dialog></clientaddclient-dialog>
-    <clientaddedit-dialog></clientaddedit-dialog>
+    <clientaddedit-dialog></clientaddedit-dialog> -->
 
     <el-table
       :data="gridDataClient"
@@ -48,19 +48,15 @@
     >
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="name" label="Имя">
-        <template>
+        <template #default="scope">
           <div class="d-flex justify-content-between">
             <span>{{ scope.row.name }}</span>
-            <el-button
-              type="text"
-              class="p-0"
+            <el-link
+              :underline="false"
               @click="linkToPage(scope.row)"
-              v-if="scope.row.visible"
-            >
-              <span class="el-dropdown-link">
-                <i class="el-icon-more clientpage-link"></i>
-              </span>
-            </el-button>
+              v-if="visibleArray[scope.row.id]">
+              <i class="el-icon-more clientpage-link"></i>
+            </el-link>
           </div>
         </template>
       </el-table-column>
@@ -81,6 +77,7 @@ export default {
       formLabelWidth: "50%",
       multipleSelection: [],
       showDeleteButton: false,
+      visibleArray: {},
     };
   },
   methods: {
@@ -143,10 +140,10 @@ export default {
       }
     },
     showElseButtonInRow(row) {
-      row.visible = true;
+      this.visibleArray[row.id] = true;
     },
     hideElseButtonInRow(row) {
-      row.visible = false;
+      this.visibleArray[row.id] = false;
     },
   },
   computed: {
@@ -161,9 +158,9 @@ export default {
           deal_num: element.DEAL_NUM,
           deal_date: element.DEAL_DATE,
           manager: users[element.MANAGER],
-          visible: false,
         };
         gridClient.push(clientFromResult);
+        this.visibleArray[clientFromResult.id] = false;
       });
       return gridClient;
     },
