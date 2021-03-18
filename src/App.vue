@@ -1,34 +1,53 @@
 <template>
-  <img src="./assets/logo.png">
-  <div>
-    <p>
-      If Element Plus is successfully added to this project, you'll see an
-      <code v-text="'<el-button>'"></code>
-      below
-    </p>
-    <el-button type="primary">el-button</el-button>
+  <div class="screen">
+    <aside class="screen">
+      <nav-menu />
+    </aside>
+    <main class="main">
+      <nav class="navbar">
+        navbar
+        <bread-crumb />
+      </nav>
+      <div class="content">
+        content
+        <!-- <router-view></router-view> -->
+      </div>
+    </main>
   </div>
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import BreadCrumb from "./components/BreadCrumb.vue";
+import NavMenu from "./components/NavMenu.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    BreadCrumb,
+    NavMenu,
+  },
+};
 </script>
 
 <style>
+.screen {
+  min-height: 100vh;
+  display: flex;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.navbar {
+  background-color: blue;
+  /* height: 50px; */
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  /* text-align: center; */
+  /* color: #2c3e50; */
 }
 </style>

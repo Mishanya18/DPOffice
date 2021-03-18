@@ -1,12 +1,510 @@
-import { createStore } from 'vuex'
+import { createStore } from "vuex";
+
+const UNIT_ARRAY = {
+  91: "Ядро/час",
+  92: "Гбайт/час",
+  93: "шт./мес.",
+  94: "шт./час",
+};
+
+function GetContacts(obj) {
+  let res = new Array();
+  for (var key in obj) {
+    res.push(obj[key]);
+  }
+  return res;
+}
+
+function GetContent(obj) {
+  for (var key in obj) {
+    var value = obj[key];
+  }
+  return value;
+}
 
 export default createStore({
   state: {
+    users: {},
+    activeUsers: {},
+    clients: [],
+    posts: [],
+    services: [],
+    DCs: [],
+    clientsServices: [],
+    dialogAddClientVisible: false,
+    dialogAddClientServiceVisible: false,
+    clientServiceForm: {},
+    clientClientForm: {},
+    billingSections: {},
+  },
+  getters: {
+    usersData(state) {
+      return state.users;
+    },
+    activeUsersData(state) {
+      return state.activeUsers;
+    },
+    dialogServiceVisible(state) {
+      return state.dialogServiceAddEditVisible;
+    },
+    dcsData(state) {
+      return state.DCs;
+    },
+    servicvesData(state) {
+      return state.services;
+    },
+    postsData(state) {
+      return state.posts;
+    },
+    clientsData(state) {
+      return state.clients;
+    },
+    billingSectionsData(state) {
+      return state.billingSections;
+    },
+    clientServices(state) {
+      return state.clientsServices;
+    },
+    clientPageData: (state) => (name) => {
+      let clientObj = state.clients.find((client) => client.NAME === name);
+      return clientObj;
+    },
+    clientsLinksData(state) {
+      let clientsLink = [];
+      state.clients.forEach((element) => {
+        clientsLink.push("/clients/" + element.ID);
+      });
+      return clientsLink;
+    },
+    postsGridData(state) {
+      let gridPost = [];
+      state.posts.forEach((element) => {
+        const postavshicFromResult = {
+          name: element.NAME,
+          deal_num: element.DEAL_NUM,
+          deal_date: element.DEAL_DATE,
+          manager: state.users[element.MANAGER],
+        };
+        gridPost.push(postavshicFromResult);
+      });
+      return gridPost;
+    },
+    postPageData: (state) => (name) => {
+      let postObj = state.posts.find((post) => post.NAME === name);
+      let postPage = {
+        "Краткое наименование": postObj.NAME,
+        "Полное наименование": postObj.FULL_NAME,
+        ИНН: postObj.INN,
+        "Номер договора": postObj.DEAL_NUM,
+        "Дата договора": postObj.DEAL_DATE,
+        "Предмет договора": postObj.DEAL_SUB,
+        "Контактное лицо по договору": postObj.DEAL_CONT,
+        "Контактное лицо техподдержки": postObj.TECH_CONT,
+        "Ответственный менеджер": postObj.MANAGER,
+        "Дата создания": postObj.CREATION_DATE,
+      };
+      return postPage;
+    },
+    postsLinksData(state) {
+      let postsLink = [];
+      state.posts.forEach((element) => {
+        postsLink.push("/posts/" + element.ID);
+      });
+      return postsLink;
+    },
+    serviceGridData(state) {
+      let gridService = [];
+      state.services.forEach((element) => {
+        const serviceFromResult = {
+          name: element.NAME,
+          full_name: element.FULL_NAME,
+          unit: UNIT_ARRAY[element.UNIT],
+          price: element.PRICE,
+          data_center: state.DCs.find((DC) => DC.ID === element.DATA_CENTER)
+            .NAME,
+        };
+        gridService.push(serviceFromResult);
+      });
+      return gridService;
+    },
+    clientServicesData: (state) => (name) => {
+      let clientServices = [];
+      let clientID = state.clients.find((client) => client.NAME === name).ID;
+      state.clientsServices.forEach((element) => {
+        if (element.CLIENT === clientID) {
+          let serv = state.services.find(
+            (service) => service.ID === element.SERVICE
+          );
+          let service = {
+            id: element.ID,
+            code: element.CODE,
+            name: serv.NAME,
+            startDateTime: element.STARTDATETIME,
+            endDateTime: element.ENDDATETIME,
+            unit: UNIT_ARRAY[serv.UNIT],
+            amount: element.AMOUNT,
+            sale: element.SALE,
+            post: state.posts.find(
+              (post) =>
+                post.ID ===
+                state.DCs.find((DC) => DC.ID === serv.DATA_CENTER).POST_NAME
+            ).NAME,
+            data_center: state.DCs.find((DC) => DC.ID === serv.DATA_CENTER)
+              .NAME,
+            service_id: element.SERVICE,
+            billing: serv.BILLING,
+            visible: false,
+          };
+          clientServices.push(service);
+        }
+      });
+      return clientServices;
+    },
+    clientAddServiceDCs(state) {
+      let options = [];
+      state.posts.forEach((post) => {
+        let children = [];
+        state.DCs.forEach((DC) => {
+          let child = {};
+          if (DC.POST_NAME === post.ID) {
+            child = {
+              value: DC.ID,
+              label: DC.NAME,
+            };
+          }
+          if (Object.keys(child).length != 0) {
+            children.push(child);
+          }
+        });
+        let opt = {
+          value: post.ID,
+          label: post.NAME,
+          children: children,
+        };
+        if (children.length != 0) {
+          options.push(opt);
+        }
+      });
+      return options;
+    },
+    clientAddServiceServices: (state) => (DCID) => {
+      let options = [];
+      state.services.forEach((element) => {
+        let opt = {};
+        if (element.DATA_CENTER === DCID) {
+          opt = {
+            value: element.ID,
+            label: element.NAME,
+          };
+        }
+        if (Object.keys(opt).length != 0) {
+          options.push(opt);
+        }
+      });
+      return options;
+    },
+    postIDByName: (state) => (name) => {
+      let postID = state.posts.find((post) => post.NAME === name);
+      return postID.ID;
+    },
+    dcIDByName: (state) => (name) => {
+      let dcID = state.DCs.find((DC) => DC.NAME === name);
+      return dcID.ID;
+    },
+    clientIDByName: (state) => (name) => {
+      let clientID = state.clients.find((client) => client.NAME === name);
+      return clientID.ID;
+    },
+    serviceIDByName: (state) => (name) => {
+      let serviceID = state.services.find((service) => service.NAME === name);
+      return serviceID.ID;
+    },
+    dialogClientAddVisible(state) {
+      return state.dialogAddClientVisible;
+    },
+    dialogClientServiceAddVisible(state) {
+      return state.dialogAddClientServiceVisible;
+    },
+    clientServiceForm(state) {
+      return state.clientServiceForm;
+    },
+    clientClientForm(state) {
+      return state.clientClientForm;
+    },
+    serviceByID: (state) => (ID) => {
+      let service = state.services.find((service) => service.ID === ID);
+      return service;
+    },
+    clientCodeByName: (state) => (name) => {
+      return state.clients.find((client) => client.NAME === name).CODE;
+    },
+    clientNameByCode: (state) => (code) => {
+      return state.clients.find((client) => client.CODE === code).NAME;
+    },
   },
   mutations: {
+    setUsers(state, payload) {
+      state.users = payload;
+    },
+    setActiveUsers(state, payload) {
+      state.activeUsers = payload;
+    },
+    nullClientsList(state) {
+      state.clients = [];
+    },
+    setClientsData(state, payload) {
+      state.clients = payload;
+    },
+    nullPostsList(state) {
+      state.posts = [];
+    },
+    setPostsData(state, payload) {
+      state.posts = payload;
+    },
+    nullServicesList(state) {
+      state.services = [];
+    },
+    setServicesList(state, payload) {
+      state.services = payload;
+    },
+    nullDCsList(state) {
+      state.DCs = [];
+    },
+    setDCsList(state, payload) {
+      state.DCs = payload;
+    },
+    nullClientsServices(state) {
+      state.clientsServices = [];
+    },
+    setClientsServices(state, payload) {
+      state.clientsServices = payload;
+    },
+    toggleServiceAddEditDialog(state) {
+      state.dialogServiceAddEditVisible = !state.dialogServiceAddEditVisible;
+    },
+    closeAddClientDialog(state) {
+      state.dialogAddClientVisible = false;
+    },
+    showAddClientDialog(state) {
+      state.dialogAddClientVisible = true;
+    },
+    closeAddClientServiceDialog(state) {
+      state.dialogAddClientServiceVisible = false;
+    },
+    showAddClientServiceDialog(state) {
+      state.dialogAddClientServiceVisible = true;
+    },
+    setClientServiceForm(state, payload) {
+      state.clientServiceForm = payload;
+    },
+    nullClientServiceForm(state) {
+      state.clientServiceForm = {};
+    },
+    setClientAddForm(state, payload) {
+      state.clientClientForm = payload;
+    },
+    nullClientAddForm(state) {
+      state.clientClientForm = {};
+    },
+    setBillingSections(state, payload) {
+      state.billingSections = payload;
+    },
+    nullBillingSections(state) {
+      state.billingSections = {};
+    },
   },
   actions: {
+    getClientsFromBitrix({ commit }) {
+      fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=38&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let Clients = [];
+          for (let i = 0; i < data.total; i++) {
+            const clientFromResult = {
+              ID: data.result[i].ID,
+              NAME: data.result[i].NAME,
+              FULL_NAME: GetContent(data.result[i].PROPERTY_185),
+              INN: GetContent(data.result[i].PROPERTY_187),
+              DEAL_NUM: GetContent(data.result[i].PROPERTY_188),
+              DEAL_DATE: GetContent(data.result[i].PROPERTY_189),
+              DEAL_SUB: GetContent(data.result[i].PROPERTY_190),
+              DEAL_ADD: GetContent(data.result[i].PROPERTY_191),
+              DEAL_CONT: GetContacts(data.result[i].PROPERTY_192),
+              TECH_CONT: GetContacts(data.result[i].PROPERTY_193),
+              // SALE: GetContent(data.result[i].PROPERTY_194),
+              MANAGER: GetContent(data.result[i].PROPERTY_205),
+              CODE: GetContent(data.result[i].PROPERTY_241),
+              CREATION_DATE: data.result[i].DATE_CREATE,
+            };
+            Clients.push(clientFromResult);
+          }
+          commit("nullClientsList");
+          commit("setClientsData", Clients);
+          console.log("Client");
+        });
+    },
+    getPostavshicsFromBitrix({ commit }) {
+      fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=39&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let Posts = [];
+          for (let i = 0; i < data.total; i++) {
+            const postFromResult = {
+              ID: data.result[i].ID,
+              NAME: data.result[i].NAME,
+              FULL_NAME: GetContent(data.result[i].PROPERTY_195),
+              INN: GetContent(data.result[i].PROPERTY_197),
+              DEAL_NUM: GetContent(data.result[i].PROPERTY_198),
+              DEAL_DATE: GetContent(data.result[i].PROPERTY_199),
+              DEAL_SUB: GetContent(data.result[i].PROPERTY_200),
+              DEAL_CONT: GetContent(data.result[i].PROPERTY_202),
+              TECH_CONT: GetContent(data.result[i].PROPERTY_203),
+              MANAGER: GetContent(data.result[i].PROPERTY_204),
+              CREATION_DATE: GetContent(data.result[i].DATE_CREATE),
+            };
+            Posts.push(postFromResult);
+          }
+          commit("nullPostsList");
+          commit("setPostsData", Posts);
+          console.log("Postavshic");
+        });
+    },
+    getUsersFromBitrix({ commit }) {
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/n022plnkzrgil3rm/user.get.json"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let usersArray = {};
+          let activeUsers = {};
+          for (let i = 0; i < data.total; i++) {
+            usersArray[data.result[i].ID] =
+              data.result[i].LAST_NAME + " " + data.result[i].NAME;
+            if (data.result[i].ACTIVE) {
+              activeUsers[data.result[i].ID] =
+                data.result[i].LAST_NAME + " " + data.result[i].NAME;
+            }
+          }
+          commit("setUsers", usersArray);
+          commit("setActiveUsers", activeUsers);
+          console.log("Users");
+        });
+    },
+    getServicesFromBitrix({ commit }) {
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=42&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let Services = [];
+          for (let i = 0; i < data.total; i++) {
+            const serviceFromResult = {
+              ID: data.result[i].ID,
+              NAME: data.result[i].NAME,
+              FULL_NAME: GetContent(data.result[i].PROPERTY_225),
+              UNIT: GetContent(data.result[i].PROPERTY_226),
+              PRICE: GetContent(data.result[i].PROPERTY_227),
+              DATA_CENTER: GetContent(data.result[i].PROPERTY_228),
+              BILLING: GetContent(data.result[i].PROPERTY_242),
+            };
+            Services.push(serviceFromResult);
+          }
+          commit("nullServicesList");
+          commit("setServicesList", Services);
+          console.log("Services");
+        });
+    },
+    getDCFromBitrix({ commit }) {
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=40&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let DCs = [];
+          for (let i = 0; i < data.total; i++) {
+            const DCFromResult = {
+              ID: data.result[i].ID,
+              NAME: data.result[i].NAME,
+              POST_NAME: GetContent(data.result[i].PROPERTY_222),
+            };
+            DCs.push(DCFromResult);
+          }
+          commit("nullDCsList");
+          commit("setDCsList", DCs);
+          console.log("DCs");
+        });
+    },
+    getClientsServsFromBitrix({ commit }) {
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=41&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let clientsServices = [];
+          for (let i = 0; i < data.total; i++) {
+            const CSFromResult = {
+              ID: data.result[i].ID,
+              CODE: data.result[i].CODE,
+              SERVICE: GetContent(data.result[i].PROPERTY_234),
+              SALE: GetContent(data.result[i].PROPERTY_235),
+              CLIENT: GetContent(data.result[i].PROPERTY_236),
+              AMOUNT: GetContent(data.result[i].PROPERTY_237),
+              STARTDATETIME: GetContent(data.result[i].PROPERTY_238),
+              ENDDATETIME: GetContent(data.result[i].PROPERTY_239),
+            };
+            clientsServices.push(CSFromResult);
+          }
+          commit("nullClientsServices");
+          commit("setClientsServices", clientsServices);
+          console.log("ClientsServices");
+        });
+    },
+    getBillsSectionsFromBitrix({ commit }) {
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/p9o3u51ll580x8tk/lists.section.get.json?IBLOCK_ID=43&IBLOCK_TYPE_ID=lists"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let sectionsArray = {};
+          for (let i = 0; i < data.total; i++) {
+            sectionsArray[data.result[i].NAME] = data.result[i].ID;
+          }
+          commit("nullBillingSections");
+          commit("setBillingSections", sectionsArray);
+        });
+    },
+    getReportPageService({ getters }, clientCode) {
+      return new Promise((resolve) => {
+        resolve(getters.clientNameByCode(clientCode));
+      }).then((res) => {
+        return new Promise((resolve) => {
+          resolve(getters.clientServicesData(res));
+        });
+      });
+    },
+    getReportPagePartnerService({ getters }, service_id) {
+      return new Promise((resolve) => {
+        resolve(getters.serviceByID(service_id));
+      });
+    },
   },
-  modules: {
-  }
-})
+  modules: {},
+});
