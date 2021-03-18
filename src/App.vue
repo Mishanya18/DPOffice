@@ -5,7 +5,6 @@
     </aside>
     <main class="main">
       <nav class="navbar">
-        navbar
         <bread-crumb />
       </nav>
       <div class="content">
@@ -40,14 +39,16 @@ export default {
   width: 100%;
 }
 .navbar {
-  background-color: blue;
-  /* height: 50px; */
+  padding: 15px;
+}
+.content {
+  /* background-color: red; */
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
-  /* color: #2c3e50; */
+  color: #2c3e50;
 }
 </style>
