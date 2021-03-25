@@ -1,17 +1,17 @@
 <template>
-  <div class="screen">
-    <aside class="screen">
+  <el-container>
+    <el-aside class="screen" width="150px">
       <nav-menu />
-    </aside>
-    <main class="main">
-      <nav class="navbar">
+    </el-aside>
+    <el-container>
+      <el-header>
         <bread-crumb />
-      </nav>
-      <div class="content">
+      </el-header>
+      <el-main>
         <router-view></router-view>
-      </div>
-    </main>
-  </div>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script>
@@ -32,19 +32,10 @@ export default {
   min-height: 100vh;
   display: flex;
 }
-.main {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-.navbar {
-  padding: 15px;
-}
-.content {
-  /* background-color: red; */
-}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: Avenir, Helvetica, Arial, sans-serif; */
+  font-family: IBM Plex Sans,ArialMT,sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

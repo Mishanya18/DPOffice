@@ -1,77 +1,101 @@
 <template>
   <div>
-    <!-- <div class="d-flex justify-content-end mt-4">
-      <el-dropdown trigger="click">
-        <span class="el-dropdown-link">
-          <i class="el-icon-more icon"></i>
-        </span>
-        <el-dropdown-menu>
-          <el-row class="p-0">
-            <el-button type="text" class="link p-0" @click="showAddDialog">
-              <el-dropdown-item>
-                Добавить клиента
-              </el-dropdown-item>
-            </el-button>
-          </el-row>
-          <el-row class="p-0" v-if="showDeleteButton">
-            <el-popconfirm
-              confirm-button-text="Да"
-              cancel-button-text="Нет"
-              icon="el-icon-info"
-              icon-color="red"
-              title="Вы уверены?"
-              @confirm="deleteClients"
-              placement="top"
-            >
-              <el-button type="text" class="link p-0">
-                <el-dropdown-item>
-                  Удалить клиента
-                </el-dropdown-item>
-              </el-button>
-            </el-popconfirm>
-          </el-row>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div> -->
-    <!-- 
-    <clientaddclient-dialog></clientaddclient-dialog>
-    <clientaddedit-dialog></clientaddedit-dialog> -->
+    <client-add-dialog />
 
-    <el-table
-      :data="gridDataClient"
-      style="width: 100%"
-      ref="multipleTable"
-      @selection-change="handleSelectionChange"
-      @row-click="toggleSelection"
-      @cell-mouse-enter="showElseButtonInRow"
-      @cell-mouse-leave="hideElseButtonInRow"
-    >
-      <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="name" label="Имя">
-        <template #default="scope">
-          <div class="d-flex justify-content-between">
-            <span>{{ scope.row.name }}</span>
-            <el-link
-              :underline="false"
-              @click="linkToPage(scope.row)"
-              v-if="visibleArray[scope.row.id]">
-              <i class="el-icon-more clientpage-link"></i>
-            </el-link>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="deal_num" label="Номер договора">
-      </el-table-column>
-      <el-table-column prop="deal_date" label="Дата договора">
-      </el-table-column>
-      <el-table-column prop="manager" label="Ответственный"> </el-table-column>
-    </el-table>
+    <el-row type="flex" justify="end">
+      <el-col :span="1">
+        <el-dropdown trigger="click">
+          <span class="el-dropdown-link">
+            <i class="el-icon-more icon"></i>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-row class="p-0">
+                <el-button type="text" class="link p-0" @click="showAddDialog">
+                  <el-dropdown-item>
+                    Добавить клиента
+                  </el-dropdown-item>
+                </el-button>
+              </el-row>
+              <el-row class="mar-pad-element" v-if="showDeleteButton">
+                <el-popconfirm
+                  confirm-button-text="Да"
+                  cancel-button-text="Нет"
+                  icon="el-icon-info"
+                  icon-color="red"
+                  title="Вы уверены?"
+                  @confirm="deleteClients"
+                  placement="top"
+                >
+                  <template #reference>
+                    <el-button type="text" class="link p-0 m-0">
+                      <el-dropdown-item>
+                        Удалить клиента
+                      </el-dropdown-item>
+                    </el-button>
+                  </template>
+                </el-popconfirm>
+              </el-row>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </el-col>
+    </el-row>
+
+    <el-row>
+      <el-col :span="24">
+        <el-table
+          :data="gridDataClient"
+          style="width: 100%"
+          ref="multipleTable"
+          @selection-change="handleSelectionChange"
+          @row-click="toggleSelection"
+          @cell-mouse-enter="showElseButtonInRow"
+          @cell-mouse-leave="hideElseButtonInRow"
+        >
+          <el-table-column type="selection" width="45"> </el-table-column>
+          <el-table-column prop="name" label="Имя" min-width="300">
+            <template #default="scope">
+              <div class="d-flex justify-content-between">
+                <span>{{ scope.row.name }}</span>
+                <el-link
+                  :underline="false"
+                  @click="linkToPage(scope.row)"
+                  v-if="visibleArray[scope.row.id]"
+                >
+                  <i class="el-icon-more clientpage-link"></i>
+                </el-link>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="deal_num"
+            label="Номер договора"
+            min-width="140"
+          >
+          </el-table-column>
+          <el-table-column
+            prop="deal_date"
+            label="Дата договора"
+            min-width="125"
+          >
+          </el-table-column>
+          <el-table-column prop="manager" label="Ответственный" min-width="200">
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
+import ClientAddDialog from '../components/ClientAddDialog.vue';
+
 export default {
   name: "client-list",
+  components: {
+    ClientAddDialog,
+  },
   data() {
     return {
       formLabelWidth: "50%",
@@ -101,6 +125,7 @@ export default {
       this.$store.commit("nullClientAddForm");
       this.$store.commit("setClientAddForm", form);
       this.$store.commit("showAddClientDialog");
+      console.log("Click");
     },
     deleteClients() {
       this.multipleSelection.forEach((element) => {
@@ -178,3 +203,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.link {
+  font-size: 15px;
+  color: #606266;
+  width: 180px;
+}
+.mar-pad-element {
+  margin: 0px;
+  padding: 0px;
+}
+.icon {
+  font-size: 28px;
+}
+</style>

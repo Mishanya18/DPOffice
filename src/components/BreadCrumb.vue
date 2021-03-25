@@ -44,3 +44,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.label-style {
+  font-size: 17px;
+  color: #606266;
+  line-height: 60px;
+}
+</style>
