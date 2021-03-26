@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import ClientAddDialog from '../components/ClientAddDialog.vue';
+import ClientAddDialog from "../components/ClientAddDialog.vue";
 
 export default {
   name: "client-list",
@@ -125,7 +125,6 @@ export default {
       this.$store.commit("nullClientAddForm");
       this.$store.commit("setClientAddForm", form);
       this.$store.commit("showAddClientDialog");
-      console.log("Click");
     },
     deleteClients() {
       this.multipleSelection.forEach((element) => {

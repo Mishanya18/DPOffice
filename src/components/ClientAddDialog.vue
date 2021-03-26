@@ -53,6 +53,7 @@
               placeholder="Введите фамилию"
               :remote-method="remoteMethod"
               :loading="loading"
+              style="width: 100%;"
             >
               <el-option
                 v-for="item in options"
@@ -107,6 +108,7 @@
               type="date"
               placeholder="Выберите дату"
               format="DD.MM.YYYY"
+              style="width: 100%;"
             >
             </el-date-picker>
           </el-form-item>
@@ -123,6 +125,7 @@
               placeholder="Введите фамилию"
               :remote-method="remoteMethod"
               :loading="loading"
+              style="width: 100%;"
             >
               <el-option
                 v-for="item in options"
@@ -218,51 +221,46 @@ export default {
     remoteMethod(query) {
       if (query !== "") {
         this.loading = true;
-        this.options = this.getContactOptionsByName(query);
+        fetch(
+          "https://bitrix.d-platforms.ru/rest/54/myhvybxm0ufykwi3/crm.contact.list.json?FILTER[%LAST_NAME]=" +
+            query +
+            "&SELECT[]=ID&SELECT[]=NAME&SELECT[]=LAST_NAME&SELECT[]=SECOND_NAME"
+        )
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            for (let i = 0; i < data.total; i++) {
+              let last_name = "";
+              let name = "";
+              let second = "";
+              if (
+                data.result[i].LAST_NAME != "" &&
+                data.result[i].LAST_NAME != null
+              ) {
+                last_name = data.result[i].LAST_NAME + " ";
+              }
+              if (data.result[i].NAME != "" && data.result[i].NAME != null) {
+                name = data.result[i].NAME + " ";
+              }
+              if (
+                data.result[i].SECOND_NAME != "" &&
+                data.result[i].SECOND_NAME != null
+              ) {
+                second = data.result[i].SECOND_NAME;
+              }
+              let opt = {
+                value: data.result[i].ID,
+                label: last_name + name + second,
+              };
+              this.options.push(opt);
+            }
+            this.loading = false;
+          });
       } else {
         this.options = [];
+        this.loading = false;
       }
-      console.log(this.options);
-      this.loading = false;
-    },
-    getContactOptionsByName(name) {
-      let options = [];
-      fetch(
-        "https://bitrix.d-platforms.ru/rest/54/myhvybxm0ufykwi3/crm.contact.list.json?FILTER[%LAST_NAME]=" +
-          name +
-          "&SELECT[]=ID&SELECT[]=NAME&SELECT[]=LAST_NAME&SELECT[]=SECOND_NAME"
-      )
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          for (let i = 0; i < data.total; i++) {
-            let last_name = "";
-            let name = "";
-            let second = "";
-            if (
-              data.result[i].LAST_NAME != "" &&
-              data.result[i].LAST_NAME != null
-            ) {
-              last_name = data.result[i].LAST_NAME + " ";
-            }
-            if (data.result[i].NAME != "" && data.result[i].NAME != null) {
-              name = data.result[i].NAME + " ";
-            }
-            if (
-              data.result[i].SECOND_NAME != "" &&
-              data.result[i].SECOND_NAME != null
-            ) {
-              second = data.result[i].SECOND_NAME;
-            }
-            let opt = {
-              value: data.result[i].ID,
-              label: last_name + name + second,
-            };
-            options.push(opt);
-          }
-        });
-      return options;
     },
     commitFormAdd() {
       this.$refs["form"].validate((valid) => {
