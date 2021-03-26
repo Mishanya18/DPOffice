@@ -7,7 +7,7 @@
       <el-header>
         <bread-crumb />
       </el-header>
-      <el-main>
+      <el-main style="padding: 10px; padding-top: 0px;">
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -35,7 +35,7 @@ export default {
 
 #app {
   /* font-family: Avenir, Helvetica, Arial, sans-serif; */
-  font-family: IBM Plex Sans,ArialMT,sans-serif;
+  font-family: IBM Plex Sans, ArialMT, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

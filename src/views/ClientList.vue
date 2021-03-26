@@ -12,7 +12,7 @@
             <el-dropdown-menu>
               <el-row class="p-0">
                 <el-button type="text" class="link p-0" @click="showAddDialog">
-                  <el-dropdown-item>
+                  <el-dropdown-item class="dropdown-item">
                     Добавить клиента
                   </el-dropdown-item>
                 </el-button>
@@ -29,7 +29,7 @@
                 >
                   <template #reference>
                     <el-button type="text" class="link p-0 m-0">
-                      <el-dropdown-item>
+                      <el-dropdown-item class="dropdown-item">
                         Удалить клиента
                       </el-dropdown-item>
                     </el-button>
@@ -215,5 +215,8 @@ export default {
 }
 .icon {
   font-size: 28px;
+}
+.dropdown-item {
+  font-family: IBM Plex Sans, ArialMT, sans-serif;
 }
 </style>

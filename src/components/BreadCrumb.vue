@@ -13,8 +13,8 @@
 <script>
 const BREADCRUMB_NAMES = {
   clients: "Клиенты",
-  posts: "Партнеры",
-  services: "Услуги",
+  partner: "Партнеры",
+  service: "Услуги",
   reports: "Отчёты",
 };
 

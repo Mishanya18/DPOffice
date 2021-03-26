@@ -1,5 +1,5 @@
 <template>
-  <el-menu class="menu">
+  <el-menu default-active="1" class="menu">
     <el-image
       style="width: 125px; height: 38px"
       src="https://o2.d-platforms.ru/brand/logo.svg"
@@ -46,14 +46,14 @@ export default {
       this.selected.reports = false;
     },
     linkToPosts() {
-      this.$router.push({ path: "/posts" });
+      this.$router.push({ path: "/partner" });
       this.selected.clients = false;
       this.selected.partners = true;
       this.selected.services = false;
       this.selected.reports = false;
     },
     linkToServices() {
-      this.$router.push({ path: "/services" });
+      this.$router.push({ path: "/service" });
       this.selected.clients = false;
       this.selected.partners = false;
       this.selected.services = true;
