@@ -29,7 +29,8 @@ export default {
 
 <style>
 .screen {
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  height: 100vh;
   display: flex;
 }
 

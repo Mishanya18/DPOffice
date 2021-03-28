@@ -207,5 +207,6 @@ export default {
 }
 .dropdown-item {
   font-family: IBM Plex Sans, ArialMT, sans-serif;
+  font-size: 15px;
 }
 </style>

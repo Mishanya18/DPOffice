@@ -1,5 +1,5 @@
 <template>
-  <el-menu default-active="1" class="menu">
+  <el-menu default-active="1" class="menu position">
     <el-image
       style="width: 125px; height: 38px"
       src="https://o2.d-platforms.ru/brand/logo.svg"
@@ -77,5 +77,9 @@ export default {
 .brand {
   margin-top: 10px;
   margin-left: 10px;
+}
+.position {
+  position: fixed;
+  height: 100vh;
 }
 </style>

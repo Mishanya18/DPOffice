@@ -9,12 +9,12 @@ const routes = [
   },
   {
     path: "/clients",
-    name: "Clients",
+    name: "clients",
     component: ClientList,
   },
   {
     path: "/partner",
-    name: "Partner",
+    name: "partner",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -23,12 +23,12 @@ const routes = [
   },
   {
     path: "/service",
-    name: "Service",
+    name: "service",
     component: () => import("../views/ServiceList.vue"),
   },
   {
     path: "/clients/:clientCode",
-    name: "ClientPage",
+    name: "clientpage",
     component: () => import("../views/ClientPage.vue"),
   },
 ];
