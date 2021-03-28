@@ -49,24 +49,12 @@
           style="width: 100%"
           ref="multipleTable"
           @selection-change="handleSelectionChange"
-          @row-click="toggleSelection"
+          @row-click="linkToPage"
           @cell-mouse-enter="showElseButtonInRow"
           @cell-mouse-leave="hideElseButtonInRow"
         >
           <el-table-column type="selection" width="45"> </el-table-column>
           <el-table-column prop="name" label="Имя" min-width="300">
-            <template #default="scope">
-              <div class="d-flex justify-content-between">
-                <span>{{ scope.row.name }}</span>
-                <el-link
-                  :underline="false"
-                  @click="linkToPage(scope.row)"
-                  v-if="visibleArray[scope.row.id]"
-                >
-                  <i class="el-icon-more clientpage-link"></i>
-                </el-link>
-              </div>
-            </template>
           </el-table-column>
           <el-table-column
             prop="deal_num"
@@ -106,7 +94,7 @@ export default {
   },
   methods: {
     linkToPage(cell) {
-      this.$router.push({ path: "clients/" + cell.name });
+      this.$router.push({ path: "/clients/" + cell.code });
     },
     showAddDialog() {
       let form = {};
@@ -156,13 +144,13 @@ export default {
         this.showDeleteButton = false;
       }
     },
-    toggleSelection(row) {
-      if (row) {
-        this.$refs.multipleTable.toggleRowSelection(row);
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
+    // toggleSelection(row) {
+    //   if (row) {
+    //     this.$refs.multipleTable.toggleRowSelection(row);
+    //   } else {
+    //     this.$refs.multipleTable.clearSelection();
+    //   }
+    // },
     showElseButtonInRow(row) {
       this.visibleArray[row.id] = true;
     },
@@ -182,6 +170,7 @@ export default {
           deal_num: element.DEAL_NUM,
           deal_date: element.DEAL_DATE,
           manager: users[element.MANAGER],
+          code: element.CODE,
         };
         gridClient.push(clientFromResult);
         this.visibleArray[clientFromResult.id] = false;

@@ -127,9 +127,9 @@ export default createStore({
       });
       return gridService;
     },
-    clientServicesData: (state) => (name) => {
+    clientServicesData: (state) => (code) => {
       let clientServices = [];
-      let clientID = state.clients.find((client) => client.NAME === name).ID;
+      let clientID = state.clients.find((client) => client.CODE === code).ID;
       state.clientsServices.forEach((element) => {
         if (element.CLIENT === clientID) {
           let serv = state.services.find(
@@ -241,6 +241,9 @@ export default createStore({
     clientNameByCode: (state) => (code) => {
       return state.clients.find((client) => client.CODE === code).NAME;
     },
+    clientIDByCode: (state) => (code) => {
+      return state.clients.find((client) => client.CODE === code).ID;
+    },
   },
   mutations: {
     setUsers(state, payload) {
@@ -337,7 +340,7 @@ export default createStore({
               TECH_CONT: GetContacts(data.result[i].PROPERTY_193),
               // SALE: GetContent(data.result[i].PROPERTY_194),
               MANAGER: GetContent(data.result[i].PROPERTY_205),
-              CODE: GetContent(data.result[i].PROPERTY_241),
+              CODE: data.result[i].CODE,
               CREATION_DATE: data.result[i].DATE_CREATE,
             };
             Clients.push(clientFromResult);
@@ -448,9 +451,21 @@ export default createStore({
           console.log("DCs");
         });
     },
-    getClientsServsFromBitrix({ commit }) {
+    getClientsServsFromBitrix(
+      { commit, getters },
+      params = { client_name: "", client_id: 0, client_code: "" }
+    ) {
+      let client_param = 0;
+      if (params.client_id) {
+        client_param = params.client_id;
+      } else if (params.client_code) {
+        client_param = getters.clientIDByCode(params.client_code);
+      } else {
+        client_param = getters.clientIDByName(params.client_name);
+      }
       return fetch(
-        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=41&IBLOCK_TYPE_ID=lists"
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=41&IBLOCK_TYPE_ID=lists&FILTER[PROPERTY_236]=" +
+          client_param
       )
         .then((response) => {
           return response.json();
