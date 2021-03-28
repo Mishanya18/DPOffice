@@ -1,15 +1,15 @@
 <template>
   <el-table :data="gridDataService">
-    <el-table-column
-      prop="name"
-      label="Название"
-      width="250px"
-    ></el-table-column>
+    <el-table-column prop="name" label="Название" min-width="150">
+      <template #default="scope">
+        <span class="text">{{ scope.row.name }}</span>
+      </template>
+    </el-table-column>
     <el-table-column
       prop="full_name"
       label="Полное наименование"
       show-overflow-tooltip
-      min-width="500"
+      min-width="300"
     >
     </el-table-column>
     <el-table-column
@@ -25,7 +25,7 @@
     <el-table-column
       prop="data_center"
       label="ЦОД"
-      min-width="250"
+      min-width="70"
     ></el-table-column>
   </el-table>
 </template>
@@ -48,3 +48,13 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.text {
+  overflow-wrap: normal;
+  word-wrap: normal;
+  word-break: normal !important;
+  line-break: auto;
+  hyphens: manual;
+}
+</style>

@@ -6,11 +6,11 @@
     @row-click="showEditDialogForm"
   >
     <el-table-column type="selection" width="55"></el-table-column>
-    <el-table-column
-      prop="name"
-      label="Название"
-      min-width="100"
-    ></el-table-column>
+    <el-table-column prop="name" label="Название" min-width="100">
+      <template #default="scope">
+        <span class="text">{{ scope.row.name }}</span>
+      </template>
+    </el-table-column>
     <el-table-column
       prop="startDateTime"
       label="Начало"
@@ -90,7 +90,7 @@ export default {
 .text {
   overflow-wrap: normal;
   word-wrap: normal;
-  word-break: normal;
+  word-break: normal !important;
   line-break: auto;
   hyphens: manual;
 }
