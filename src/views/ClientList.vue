@@ -11,7 +11,11 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-row class="p-0">
-                <el-button type="text" class="link p-0" @click="showAddDialog">
+                <el-button
+                  type="text"
+                  class="link p-0"
+                  @click="showAddClientDialog"
+                >
                   <el-dropdown-item class="dropdown-item">
                     Добавить клиента
                   </el-dropdown-item>
@@ -96,7 +100,7 @@ export default {
     linkToPage(cell) {
       this.$router.push({ path: "/clients/" + cell.code });
     },
-    showAddDialog() {
+    showAddClientDialog() {
       let form = {};
       form.code = "";
       form.short_name = "";

@@ -99,41 +99,45 @@
     <el-row style="padding-top: 20px;">
       <el-col :span="10" :offset="2">
         <p class="label">Краткое наименование</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.name }}</p>
 
         <p class="label">Code в o2.d-platforms.ru</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.code }}</p>
 
         <p class="label">Номер договора</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.deal_num }}</p>
 
         <p class="label">Дополнительное соглашение к договору</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.deal_add }}</p>
 
         <p class="label">Контактное лицо по договору</p>
-        <p class="param">Пример</p>
+        <p class="param" v-for="Cont in dealCont" :key="Cont">
+          {{ Cont }}
+        </p>
 
         <p class="label">Дата создания</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.creation_date }}</p>
       </el-col>
       <el-col :span="10" :offset="2">
         <p class="label">Полное наименование</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.full_name }}</p>
 
         <p class="label">ИНН</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.inn }}</p>
 
         <p class="label">Предмет договора</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.deal_sub }}</p>
 
         <p class="label">Дата договора</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.deal_date }}</p>
 
         <p class="label">Контактное лицо техподдержки</p>
-        <p class="param">Пример</p>
+        <p class="param" v-for="Cont in techCont" :key="Cont">
+          {{ Cont }}
+        </p>
 
         <p class="label">Ответственный менеджер</p>
-        <p class="param">Пример</p>
+        <p class="param">{{ clientNameParams.manager }}</p>
       </el-col>
     </el-row>
   </el-container>
@@ -147,6 +151,8 @@ export default {
       multipleSelection: [],
       showDeleteButton: false,
       clientNameParams: {},
+      techCont: [],
+      dealCont: [],
     };
   },
   computed: {
@@ -157,6 +163,24 @@ export default {
     },
   },
   methods: {
+    showAddDialogForm() {
+      let form = {};
+      form.startDateTime = "";
+      form.endDateTime = "";
+      form.sale_num = 0;
+      form.service = "";
+      form.DC = [];
+      form.optionsServices = [];
+      form.isEditDialog = false;
+      form.amount = 0;
+      form.editDialogVisible = false;
+      form.clientID = this.$store.getters.clientIDByName(
+        this.$route.params.clientName
+      );
+      this.$store.commit("nullClientServiceForm");
+      this.$store.commit("setClientServiceForm", form);
+      this.$store.commit("showAddClientServiceDialog");
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
       if (this.multipleSelection.length != 0) {
@@ -164,6 +188,63 @@ export default {
       } else {
         this.showDeleteButton = false;
       }
+    },
+    getContactById(client, type) {
+      client.forEach((cont) => {
+        fetch(
+          "https://bitrix.d-platforms.ru/rest/54/d3dkblc1w832p2fu/crm.contact.get.json?ID=" +
+            cont
+        )
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            let last_name = "";
+            let name = "";
+            let second = "";
+            if (data.result.LAST_NAME != "" && data.result.LAST_NAME != null) {
+              last_name = data.result.LAST_NAME + " ";
+            }
+            if (data.result.NAME != "" && data.result.NAME != null) {
+              name = data.result.NAME + " ";
+            }
+            if (
+              data.result.SECOND_NAME != "" &&
+              data.result.SECOND_NAME != null
+            ) {
+              second = data.result.SECOND_NAME;
+            }
+            let cont = last_name + name + second;
+            if (type == "tech") this.techCont.push(cont);
+            if (type == "deal") this.dealCont.push(cont);
+          });
+      });
+    },
+    getClientNameParams() {
+      let client = this.$store.getters.clientPageData(
+        this.$route.params.clientCode
+      );
+      let users = this.$store.getters.usersData;
+
+      this.clientNameParams = {
+        name: client.NAME,
+        full_name: client.FULL_NAME ? client.FULL_NAME : "Не указано",
+        inn: client.INN ? client.INN : "Не указано",
+        deal_num: client.DEAL_NUM,
+        deal_date: client.DEAL_DATE,
+        deal_sub: client.DEAL_SUB ? client.DEAL_SUB : "Не указано",
+        deal_add: client.DEAL_ADD ? client.DEAL_ADD : "Не указано",
+        code: client.CODE,
+        manager: users[client.MANAGER],
+        creation_date: client.CREATION_DATE,
+      };
+      console.log(client.DEAL_CONT.length);
+      client.DEAL_CONT.length
+        ? this.getContactById(client.DEAL_CONT, "deal")
+        : (this.dealCont = ["Не указано"]);
+      client.TECH_CONT.length
+        ? this.getContactById(client.TECH_CONT, "tech")
+        : (this.techCont = ["Не указано"]);
     },
   },
   async created() {
@@ -179,7 +260,7 @@ export default {
     await this.$store.dispatch("getClientsServsFromBitrix", {
       client_code: this.$route.params.clientCode,
     });
-    // this.getClientNameParams();
+    this.getClientNameParams();
   },
 };
 </script>
@@ -212,9 +293,11 @@ export default {
   font-family: IBM Plex Sans, ArialMT, sans-serif;
   font-size: 16px;
   margin-bottom: 5px;
+  /* color: #606266; */
 }
 .param {
   font-family: IBM Plex Sans, ArialMT, sans-serif;
   font-size: 14px;
+  color: #606266;
 }
 </style>

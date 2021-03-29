@@ -4,6 +4,7 @@
     v-model="dialogFormVisible"
     @close="dialogClose"
     width="60%"
+    style="padding: 0px;"
   >
     <el-form
       size="mini"
@@ -113,7 +114,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item
-            label="Контактное лицо для взаимодействия с техподдержкой"
+            label="Контактное лицо по техподдержке"
             :label-width="formLabelWidth"
           >
             <el-select
@@ -292,8 +293,6 @@ export default {
             this.form.deal_add +
             dealContacts + //контакты по договору
             techContacts + //контакты по техподдержке
-            "&FIELDS[PROPERTY_194]=" + //Дисконт от цены партнерров
-            this.form.sale +
             "&FIELDS[PROPERTY_205]=" + //Ответственный менеджер
               this.form.manager
           )

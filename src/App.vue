@@ -1,13 +1,15 @@
 <template>
-  <el-container>
-    <el-aside class="screen" width="150px">
+  <el-container style="height: 100vh;">
+    <el-aside width="150px">
       <nav-menu />
     </el-aside>
+
     <el-container>
       <el-header>
         <bread-crumb />
       </el-header>
-      <el-main style="padding: 10px; padding-top: 0px;">
+
+      <el-main style="padding: 10px; padding-top: 5px; ">
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -28,12 +30,6 @@ export default {
 </script>
 
 <style>
-.screen {
-  /* min-height: 100vh; */
-  height: 100vh;
-  display: flex;
-}
-
 #app {
   /* font-family: Avenir, Helvetica, Arial, sans-serif; */
   font-family: IBM Plex Sans, ArialMT, sans-serif;

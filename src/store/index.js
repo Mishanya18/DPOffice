@@ -65,8 +65,8 @@ export default createStore({
     clientServices(state) {
       return state.clientsServices;
     },
-    clientPageData: (state) => (name) => {
-      let clientObj = state.clients.find((client) => client.NAME === name);
+    clientPageData: (state) => (code) => {
+      let clientObj = state.clients.find((client) => client.CODE === code);
       return clientObj;
     },
     clientsLinksData(state) {
