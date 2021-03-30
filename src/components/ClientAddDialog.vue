@@ -252,6 +252,7 @@ export default {
             return response.json();
           })
           .then((data) => {
+            this.options = [];
             for (let i = 0; i < data.total; i++) {
               let last_name = "";
               let name = "";
