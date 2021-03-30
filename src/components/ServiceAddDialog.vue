@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="Добавить услугу"
+    :title="form.title"
     v-model="dialogFormVisible"
     @close="dialogClose"
     width="50%"
@@ -116,6 +116,28 @@
 </template>
 
 <script>
+function formatDate(date, format) {
+  let month;
+  let day;
+  if (date.getDate() < 10) {
+    day = "0" + date.getDate();
+  } else {
+    day = date.getDate();
+  }
+  if (date.getMonth() + 1 < 10) {
+    month = "0" + (date.getMonth() + 1);
+  } else {
+    month = date.getMonth() + 1;
+  }
+  const map = {
+    dd: day,
+    mm: month,
+    yyyy: date.getFullYear(),
+  };
+
+  return format.replace(/dd|mm|yyyy/gi, (matched) => map[matched]);
+}
+
 export default {
   data() {
     return {
@@ -181,6 +203,7 @@ export default {
     },
     showAddDialogForm(clientID) {
       let form = {};
+      form.title = "Добавить услугу";
       form.startDateTime = "";
       form.endDateTime = "";
       form.sale_num = 0;
@@ -199,6 +222,14 @@ export default {
       this.$refs["formSvc"].validate((valid) => {
         if (valid) {
           this.dialogClose();
+          let startDate = formatDate(this.form.startDateTime, "dd.mm.yyyy");
+          let endDate;
+          if (this.form.endDateTime) {
+            endDate = formatDate(this.form.endDateTime, "dd.mm.yyyy");
+          } else {
+            endDate = "";
+          }
+
           fetch(
             "https://bitrix.d-platforms.ru/rest/54/x8k9x92hq18r7183/lists.element.add.json?IBLOCK_TYPE_ID=lists&IBLOCK_ID=41&ELEMENT_CODE=" +
               this.form.service +
@@ -215,9 +246,9 @@ export default {
               "&FIELDS[PROPERTY_237]=" +
               this.form.amount +
               "&FIELDS[PROPERTY_238]=" +
-              this.form.startDateTime +
+              startDate +
               "&FIELDS[PROPERTY_239]=" +
-              this.form.endDateTime
+              endDate
           )
             .then((response) => {
               return response.json();
@@ -226,6 +257,8 @@ export default {
               if (data.error) {
                 if (data.error === "ERROR_ELEMENT_ALREADY_EXISTS") {
                   this.$message.error("Услуга уже добавлена.");
+                } else {
+                  console.log(data.error);
                 }
               } else {
                 this.$message({
@@ -245,6 +278,7 @@ export default {
               }
             });
         } else {
+          console.log("Validation Failed");
           return false;
         }
       });
@@ -253,6 +287,14 @@ export default {
       this.$refs["formSvc"].validate((valid) => {
         if (valid) {
           this.dialogClose();
+          let startDate = formatDate(this.form.startDateTime, "dd.mm.yyyy");
+          let endDate;
+          if (this.form.endDateTime) {
+            endDate = formatDate(this.form.endDateTime, "dd.mm.yyyy");
+          } else {
+            endDate = "";
+          }
+
           fetch(
             "https://bitrix.d-platforms.ru/rest/54/m6x71a0047f4ltg9/lists.element.update.json?IBLOCK_TYPE_ID=lists&IBLOCK_ID=41&ELEMENT_ID=" +
               this.form.serviceID +
@@ -268,9 +310,9 @@ export default {
               "&FIELDS[PROPERTY_237]=" +
               this.form.amount +
               "&FIELDS[PROPERTY_238]=" +
-              this.form.startDateTime +
+              startDate +
               "&FIELDS[PROPERTY_239]=" +
-              this.form.endDateTime
+              endDate
           )
             .then((response) => {
               return response.json();

@@ -149,6 +149,28 @@
 </template>
 
 <script>
+function formatDate(date, format) {
+  let month;
+  let day;
+  if (date.getDate() < 10) {
+    day = "0" + date.getDate();
+  } else {
+    day = date.getDate();
+  }
+  if (date.getMonth() + 1 < 10) {
+    month = "0" + (date.getMonth() + 1);
+  } else {
+    month = date.getMonth() + 1;
+  }
+  const map = {
+    dd: day,
+    mm: month,
+    yyyy: date.getFullYear(),
+  };
+
+  return format.replace(/dd|mm|yyyy/gi, (matched) => map[matched]);
+}
+
 export default {
   data() {
     return {
@@ -285,7 +307,7 @@ export default {
             "&FIELDS[PROPERTY_188]=" + //номер договора
             this.form.deal_num +
             "&FIELDS[PROPERTY_189]=" + //дата договора
-            this.form.deal_date +
+            formatDate(this.form.deal_date, "dd.mm.yyyy") +
             "&FIELDS[PROPERTY_190]=" + //предмет договора
             this.form.deal_sub +
             "&FIELDS[PROPERTY_191]=" + //доп соглашение по договору
@@ -303,7 +325,7 @@ export default {
                 console.log(data);
               } else {
                 this.$store.commit("closeAddClientDialog");
-                this.showAddServiceDialog(data.result);
+                // this.showAddServiceDialog(data.result);
                 this.$store.dispatch("getClientsFromBitrix");
               }
             });

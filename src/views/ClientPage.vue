@@ -172,6 +172,7 @@ export default {
   methods: {
     showAddDialogForm() {
       let form = {};
+      form.title = "Добавить услугу";
       form.startDateTime = "";
       form.endDateTime = "";
       form.sale_num = 0;
@@ -190,10 +191,25 @@ export default {
     },
     showEditDialogForm(row) {
       let form = {};
+      form.title = "Изменить услугу";
       form.serviceID = row.id;
-      form.startDateTime = row.startDateTime;
-      form.endDateTime = row.endDateTime;
-      form.sale_num = row.sale;
+      if (row.startDateTime) {
+        let dateArrStart = row.startDateTime.split(".");
+        form.startDateTime = new Date(
+          dateArrStart[2],
+          dateArrStart[1] - 1,
+          dateArrStart[0]
+        );
+      }
+      if (row.endDateTime) {
+        let dateArrEnd = row.endDateTime.split(".");
+        form.endDateTime = new Date(
+          dateArrEnd[2],
+          dateArrEnd[1] - 1,
+          dateArrEnd[0]
+        );
+      }
+      form.sale_num = parseInt(row.sale);
       form.service = this.$store.getters.serviceIDByName(row.name);
       form.DC = [];
       form.DC[0] = this.$store.getters.postIDByName(row.post);
@@ -201,10 +217,10 @@ export default {
       form.optionsServices = this.$store.getters.clientAddServiceServices(
         form.DC[1]
       );
-      form.amount = row.amount;
+      form.amount = parseInt(row.amount);
       form.editDialogVisible = true;
-      form.clientID = this.$store.getters.clientIDByName(
-        this.$route.params.clientName
+      form.clientID = this.$store.getters.clientIDByCode(
+        this.$route.params.clientCode
       );
       form.isEditDialog = true;
       this.$store.commit("nullClientServiceForm");
@@ -218,6 +234,30 @@ export default {
       } else {
         this.showDeleteButton = false;
       }
+    },
+    deleteSelectedRows() {
+      this.multipleSelection.forEach((element) => {
+        fetch(
+          "https://bitrix.d-platforms.ru/rest/54/j2ddrqogky8h0nmn/lists.element.delete.json?IBLOCK_TYPE_ID=lists&IBLOCK_ID=41&ELEMENT_ID=" +
+            element.id
+        )
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            if (data.error) {
+              this.$message.error("Не удалось удалить услугу.");
+            } else {
+              this.$message({
+                message: "Услуга успешно удалена.",
+                type: "success",
+              });
+            }
+            this.$store.dispatch("getClientsServsFromBitrix", {
+              client_code: this.$route.params.clientCode,
+            });
+          });
+      });
     },
     getContactById(client, type) {
       client.forEach((cont) => {
