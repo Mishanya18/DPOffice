@@ -508,11 +508,7 @@ export default createStore({
     },
     getReportPageService({ getters }, clientCode) {
       return new Promise((resolve) => {
-        resolve(getters.clientNameByCode(clientCode));
-      }).then((res) => {
-        return new Promise((resolve) => {
-          resolve(getters.clientServicesData(res));
-        });
+        resolve(getters.clientServicesData(clientCode));
       });
     },
     getReportPagePartnerService({ getters }, service_id) {

@@ -36,6 +36,11 @@ const routes = [
     name: "reports",
     component: () => import("../views/ReportList.vue"),
   },
+  {
+    path: "/reports/:clientCode",
+    name: "reportspage",
+    component: () => import("../views/ReportPage.vue"),
+  },
 ];
 
 const router = createRouter({

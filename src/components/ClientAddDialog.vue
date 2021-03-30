@@ -4,7 +4,6 @@
     v-model="dialogFormVisible"
     @close="dialogClose"
     width="60%"
-    style="padding: 0px;"
   >
     <el-form
       size="mini"

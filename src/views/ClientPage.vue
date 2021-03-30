@@ -1,5 +1,7 @@
 <template>
   <el-container direction="vertical">
+    <service-add-dialog />
+
     <el-row type="flex" justify="space-between">
       <el-col :span="5" :offset="1">
         <span style="font-size: 20px;">Услуги</span>
@@ -144,7 +146,12 @@
 </template>
 
 <script>
+import ServiceAddDialog from "../components/ServiceAddDialog.vue";
+
 export default {
+  components: {
+    ServiceAddDialog,
+  },
   data() {
     return {
       editable: false,
@@ -174,9 +181,32 @@ export default {
       form.isEditDialog = false;
       form.amount = 0;
       form.editDialogVisible = false;
+      form.clientID = this.$store.getters.clientIDByCode(
+        this.$route.params.clientCode
+      );
+      this.$store.commit("nullClientServiceForm");
+      this.$store.commit("setClientServiceForm", form);
+      this.$store.commit("showAddClientServiceDialog");
+    },
+    showEditDialogForm(row) {
+      let form = {};
+      form.serviceID = row.id;
+      form.startDateTime = row.startDateTime;
+      form.endDateTime = row.endDateTime;
+      form.sale_num = row.sale;
+      form.service = this.$store.getters.serviceIDByName(row.name);
+      form.DC = [];
+      form.DC[0] = this.$store.getters.postIDByName(row.post);
+      form.DC[1] = this.$store.getters.dcIDByName(row.data_center);
+      form.optionsServices = this.$store.getters.clientAddServiceServices(
+        form.DC[1]
+      );
+      form.amount = row.amount;
+      form.editDialogVisible = true;
       form.clientID = this.$store.getters.clientIDByName(
         this.$route.params.clientName
       );
+      form.isEditDialog = true;
       this.$store.commit("nullClientServiceForm");
       this.$store.commit("setClientServiceForm", form);
       this.$store.commit("showAddClientServiceDialog");
@@ -238,7 +268,6 @@ export default {
         manager: users[client.MANAGER],
         creation_date: client.CREATION_DATE,
       };
-      console.log(client.DEAL_CONT.length);
       client.DEAL_CONT.length
         ? this.getContactById(client.DEAL_CONT, "deal")
         : (this.dealCont = ["Не указано"]);

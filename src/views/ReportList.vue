@@ -1,10 +1,6 @@
 <template>
   <div>
-    <el-table
-      :data="gridDataReportClients"
-      style="width: 100%"
-      @row-click="linkToPage"
-    >
+    <el-table :data="gridDataReportClients" @row-click="linkToPage">
       <el-table-column prop="client_name" label="Клиент" min-width="350">
         <template #default="scope">
           <span class="text">{{ scope.row.client_name }}</span>
@@ -100,6 +96,10 @@ export default {
     this.hours =
       new Date(date.getFullYear(), date.getMonth(), 0).getDate() * 24;
     this.$store.dispatch("getBillsSectionsFromBitrix");
+    if (this.$store.getters.servicvesData) {
+      this.$store.dispatch("getDCFromBitrix");
+      this.$store.dispatch("getServicesFromBitrix");
+    }
   },
 };
 </script>
