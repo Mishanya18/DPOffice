@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ClientList from "../views/ClientList.vue";
 
-let is_bitrix_call = "";
+// let is_bitrix_call = "";
 
 const routes = [
   {
@@ -54,24 +54,22 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _, next) => {
-  if (is_bitrix_call != "bitrix.d-platforms.ru") {
-    if (to.query.DOMAIN != "bitrix.d-platforms.ru") {
-      if (to.path == "/pagenotfound") {
-        next();
-      } else {
-        next({ name: "pagenotfound" });
-        console.log("GO AWAY!");
-      }
-    } else {
-      is_bitrix_call = to.query.DOMAIN;
-      next();
-      // console.log("Assign Value");
-    }
-  } else {
-    next();
-    // console.log("GOOD");
-  }
-});
+// router.beforeEach((to, _, next) => {
+//   if (is_bitrix_call != "bitrix.d-platforms.ru") {
+//     if (to.query.DOMAIN != "bitrix.d-platforms.ru") {
+//       if (to.path == "/pagenotfound") {
+//         next();
+//       } else {
+//         next({ name: "pagenotfound" });
+//         console.log("GO AWAY!");
+//       }
+//     } else {
+//       is_bitrix_call = to.query.DOMAIN;
+//       next();
+//     }
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;

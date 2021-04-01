@@ -139,7 +139,6 @@ export default {
   methods: {
     getClientBilling() {
       let billSections = this.$store.getters.billingSectionsData;
-      //   console.log(formatDate(this.month, "mm.yyyy"));
       return fetch(
         "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=43&IBLOCK_TYPE_ID=lists&FILTER[SECTION_ID]=" +
           billSections[formatDate(this.month, "mm.yyyy")] +
@@ -150,16 +149,22 @@ export default {
           return response.json();
         })
         .then((data) => {
-          let clientBilling = {
-            ID: data.result[0].ID,
-            code: data.result[0].NAME,
-            cpu: GetContent(data.result[0].PROPERTY_229),
-            memory: GetContent(data.result[0].PROPERTY_230),
-            sata: GetContent(data.result[0].PROPERTY_231),
-            sas: GetContent(data.result[0].PROPERTY_232),
-            ssd: GetContent(data.result[0].PROPERTY_233),
-          };
-          return clientBilling;
+          // console.log(data.result.length);
+          if (data.result.length != 0) {
+            let clientBilling = {
+              ID: data.result[0].ID,
+              code: data.result[0].NAME,
+              cpu: GetContent(data.result[0].PROPERTY_229),
+              memory: GetContent(data.result[0].PROPERTY_230),
+              sata: GetContent(data.result[0].PROPERTY_231),
+              sas: GetContent(data.result[0].PROPERTY_232),
+              ssd: GetContent(data.result[0].PROPERTY_233),
+            };
+            return clientBilling;
+          } else {
+            let clientBilling = {};
+            return clientBilling;
+          }
         });
     },
     dateCalculate() {
@@ -177,7 +182,11 @@ export default {
         new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() * 24;
       this.getClientBilling().then((res) => {
         this.clientBilling = res;
-        this.cookGridData();
+        if (Object.keys(this.clientBilling).length != 0) {
+          this.cookGridData();
+        } else {
+          this.gridDataReportClient = [];
+        }
       });
     },
     cookGridData() {
@@ -326,7 +335,9 @@ export default {
       "getReportPageService",
       this.clientCode
     );
-    this.cookGridData();
+    if (Object.keys(this.clientBilling).length != 0) {
+      this.cookGridData();
+    }
   },
 };
 </script>
