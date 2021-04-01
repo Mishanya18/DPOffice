@@ -1,0 +1,3 @@
+<template>
+  Access DENIED!
+</template>

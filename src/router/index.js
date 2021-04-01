@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ClientList from "../views/ClientList.vue";
-// import PartnerList from '../views/PartnerList.vue'
+
+let is_bitrix_call = "";
 
 const routes = [
   {
     path: "/",
-    redirect: "/clients",
+    redirect: "clients",
   },
   {
     path: "/clients",
@@ -41,11 +42,36 @@ const routes = [
     name: "reportspage",
     component: () => import("../views/ReportPage.vue"),
   },
+  {
+    path: "/pagenotfound",
+    name: "pagenotfound",
+    component: () => import("../views/PageNotFound.vue"),
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, _, next) => {
+  if (is_bitrix_call != "bitrix.d-platforms.ru") {
+    if (to.query.DOMAIN != "bitrix.d-platforms.ru") {
+      if (to.path == "/pagenotfound") {
+        next();
+      } else {
+        next({ name: "pagenotfound" });
+        console.log("GO AWAY!");
+      }
+    } else {
+      is_bitrix_call = to.query.DOMAIN;
+      next();
+      // console.log("Assign Value");
+    }
+  } else {
+    next();
+    // console.log("GOOD");
+  }
 });
 
 export default router;
