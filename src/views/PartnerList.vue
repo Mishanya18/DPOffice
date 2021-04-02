@@ -23,8 +23,9 @@
 export default {
   name: "partner-list",
   methods: {
-    linkToPage(cell) {
-      this.$router.push({ path: "partner/" + cell.name });
+    linkToPage() {
+      //cell
+      // this.$router.push({ path: "partner/" + cell.name });
     },
   },
   computed: {

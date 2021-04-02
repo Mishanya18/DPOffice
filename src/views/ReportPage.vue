@@ -1,22 +1,42 @@
 <template>
   <el-container direction="vertical">
     <el-row type="flex" align="middle">
-      <span class="label-style">Отчётный месяц</span>
-      <el-date-picker
-        v-model="month"
-        type="month"
-        format="MM.YYYY"
-        :disabled-date="disabledDate"
-        placeholder="Выберите месяц"
-        size="small"
-        @change="dateCalculate"
-        style="width: 170px;"
-      >
-      </el-date-picker>
-      <span class="label-style ms-3">Начало периода:</span>
-      <span class="value-style">{{ periodStartDate }}</span>
-      <span class="label-style ms-3">Конец периода:</span>
-      <span class="value-style">{{ periodEndDate }}</span>
+      <el-col :span="23">
+        <span class="label-style">Отчётный месяц</span>
+        <el-date-picker
+          v-model="month"
+          type="month"
+          format="MM.YYYY"
+          :disabled-date="disabledDate"
+          placeholder="Выберите месяц"
+          size="small"
+          @change="dateCalculate"
+          style="width: 170px;"
+        >
+        </el-date-picker>
+        <span class="label-style ms-3">Начало периода:</span>
+        <span class="value-style">{{ periodStartDate }}</span>
+        <span class="label-style ms-3">Конец периода:</span>
+        <span class="value-style">{{ periodEndDate }}</span>
+      </el-col>
+      <el-col :span="1">
+        <el-dropdown trigger="click">
+          <span>
+            <i class="el-icon-more icon"></i>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-row>
+                <el-button type="text" class="link" @click="handleExcelExport">
+                  <el-dropdown-item class="dropdown-item">
+                    Экспорт в Excel
+                  </el-dropdown-item>
+                </el-button>
+              </el-row>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </el-col>
     </el-row>
 
     <el-row style="padding-top: 10px;">
@@ -82,6 +102,9 @@
         <el-table-column prop="amount" label="Объем за период" min-width="145">
         </el-table-column>
         <el-table-column prop="summa" label="Стоимость" min-width="100">
+          <template #default="scope">
+            <span>{{ formatPrice(scope.row.summa) }}</span>
+          </template>
         </el-table-column>
       </el-table>
     </el-row>
@@ -129,6 +152,7 @@ export default {
       clientCode: "",
       clientService: [],
       gridDataReportClient: [],
+      summa: 0,
       disabledDate(time) {
         let date = new Date();
         let d = new Date(date.getFullYear(), date.getMonth(), 0);
@@ -281,7 +305,8 @@ export default {
             //Округление до 3-х знаков после запятой
             costAfterSale = Math.round(costAfterSale * 1000) / 1000;
             amount = Math.round(amount * 1000) / 1000;
-            summ = Math.round(summ * 1000) / 1000;
+            this.summa += summ;
+            summ = summ.toFixed(2);
             //Создание строки таблицы для потребленной услуги
             const clientReport = {
               start_date_deal: service.startDateTime.split(" ")[0],
@@ -300,16 +325,72 @@ export default {
       });
     },
     getSummaries(param) {
-      const { columns, data } = param;
+      const { columns } = param;
       const sum = [];
       sum[0] = "Сумма";
-      let summ = 0;
-      data.forEach((row) => {
-        summ += row.summa;
-      });
-      summ = Math.round(summ * 1000) / 1000;
-      sum[columns.length - 1] = summ;
+      sum[columns.length - 1] = this.formatPrice(this.summa.toFixed(2));
       return sum;
+    },
+    handleExcelExport() {
+      import("@/vendor/Export2Excel").then((excel) => {
+        const tHeader = [
+          "Начало по договору",
+          "Начало периода",
+          "Конец периода",
+          "Услуга",
+          "Название услуги",
+          "Цена за ед.",
+          "Дисконт",
+          "Цена с дисконтом",
+          "Объем за период",
+          "Стоимость",
+        ];
+        const filterVal = [
+          "start_date_deal",
+          "start_date_period",
+          "end_date_period",
+          "service_short_name",
+          "service_full_name",
+          "service_cost",
+          "sale",
+          "cost_sale",
+          "amount",
+          "summa",
+        ];
+        const data = this.formatJson(filterVal, this.gridDataReportClient);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename:
+            this.clientCode +
+            " " +
+            formatDate(this.month, "mm.yyyy") +
+            " " +
+            "report",
+          autoWidth: false,
+          bookType: "xlsx",
+        });
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
+          return v[j];
+        })
+      );
+    },
+    formatPrice(price) {
+      if (price > 999) {
+        var priceArray = price.split("").reverse();
+        var index = 3;
+        while (priceArray.length > index + 3) {
+          priceArray.splice(index + 3, 0, " ");
+          index += 4;
+        }
+        return priceArray.reverse().join("") + " ₽";
+      } else {
+        return price + " ₽";
+      }
     },
   },
   async mounted() {
@@ -358,5 +439,14 @@ export default {
   word-break: normal !important;
   line-break: auto;
   hyphens: manual;
+}
+.icon {
+  font-size: 28px;
+}
+.link {
+  font-size: 15px;
+  color: #606266;
+  width: 180px;
+  padding: 0px;
 }
 </style>
