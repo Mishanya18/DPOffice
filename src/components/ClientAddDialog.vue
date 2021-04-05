@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="Добавить клиента"
+    :title="form.title"
     v-model="dialogFormVisible"
     @close="dialogClose"
     width="60%"
@@ -90,7 +90,10 @@
             prop="code"
             :label-width="formLabelWidth"
           >
-            <el-input v-model="form.code"></el-input>
+            <el-input
+              v-model="form.code"
+              :disabled="form.isClientEdit"
+            ></el-input>
           </el-form-item>
           <el-form-item label="ИНН" :label-width="formLabelWidth">
             <el-input v-model="form.inn"></el-input>
@@ -142,7 +145,15 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogClose">Отмена</el-button>
-        <el-button type="primary" @click="commitFormAdd">Добавить</el-button>
+        <el-button
+          v-if="!form.isClientEdit"
+          type="primary"
+          @click="commitFormAdd"
+          >Добавить</el-button
+        >
+        <el-button v-else type="success" @click="commitFormEdit"
+          >Изменить</el-button
+        >
       </span>
     </template>
   </el-dialog>
@@ -217,6 +228,7 @@ export default {
       },
     };
   },
+  emits: ["edited"],
   computed: {
     dialogFormVisible() {
       let formObj = this.$store.getters.clientClientForm;
@@ -335,6 +347,57 @@ export default {
         }
       });
     },
+    commitFormEdit() {
+      this.$refs["form"].validate((valid) => {
+        if (valid) {
+          let dealContacts = "";
+          let techContacts = "";
+          this.form.cont_deal.forEach((cont) => {
+            dealContacts += "&FIELDS[PROPERTY_192][]=" + cont;
+          });
+          this.form.cont_tech.forEach((cont) => {
+            techContacts += "&FIELDS[PROPERTY_193][]=" + cont;
+          });
+          fetch(
+            "https://bitrix.d-platforms.ru/rest/54/x8k9x92hq18r7183/lists.element.update.json?IBLOCK_TYPE_ID=lists&IBLOCK_ID=38&ELEMENT_CODE=" +
+            this.form.code +
+            "&FIELDS[NAME]=" +
+            this.form.short_name +
+            "&FIELDS[PROPERTY_185]=" + //полное имя
+            this.form.full_name +
+            "&FIELDS[PROPERTY_187]=" + //ИНН
+            this.form.inn +
+            "&FIELDS[PROPERTY_188]=" + //номер договора
+            this.form.deal_num +
+            "&FIELDS[PROPERTY_189]=" + //дата договора
+            formatDate(this.form.deal_date, "dd.mm.yyyy") +
+            "&FIELDS[PROPERTY_190]=" + //предмет договора
+            this.form.deal_sub +
+            "&FIELDS[PROPERTY_191]=" + //доп соглашение по договору
+            this.form.deal_add +
+            dealContacts + //контакты по договору
+            techContacts + //контакты по техподдержке
+            "&FIELDS[PROPERTY_205]=" + //Ответственный менеджер
+              this.form.manager
+          )
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+              if (data.error) {
+                console.log(data.error);
+              } else {
+                this.$store.commit("closeAddClientDialog");
+                this.$store.dispatch("getClientsFromBitrix").then(() => {
+                  this.$emit("edited", "bingo");
+                });
+              }
+            });
+        } else {
+          return false;
+        }
+      });
+    },
     showAddServiceDialog(clientID) {
       let formAdd = {};
       formAdd.startDateTime = "";
@@ -353,6 +416,7 @@ export default {
     },
     setForm(formObj) {
       this.form = formObj;
+      this.options = formObj.options;
     },
   },
 };

@@ -4,7 +4,7 @@
  * @type {import('@vue/cli-service').ProjectOptions}
  */
 module.exports = {
-  // publicPath:
-  //   process.env.NODE_ENV === "production" ? "/applications/test/dist/" : "/", //For Bitrix
-  publicPath: "/",
+  publicPath:
+    process.env.NODE_ENV === "production" ? "/applications/test/dist/" : "/", //For Bitrix
+  // publicPath: "/",
 };

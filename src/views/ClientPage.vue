@@ -1,6 +1,7 @@
 <template>
   <el-container direction="vertical">
     <service-add-dialog />
+    <client-add-dialog @edited="refreshClientParams" />
 
     <el-row type="flex" justify="space-between">
       <el-col :span="5" :offset="1">
@@ -14,13 +15,20 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-row>
-                <el-button
-                  type="text"
-                  class="link p-0"
-                  @click="showAddDialogForm"
-                >
+                <el-button type="text" class="link" @click="showAddDialogForm">
                   <el-dropdown-item class="dropdown-item">
                     Добавить услугу
+                  </el-dropdown-item>
+                </el-button>
+              </el-row>
+              <el-row>
+                <el-button
+                  type="text"
+                  class="link"
+                  @click="showEditClientDialog"
+                >
+                  <el-dropdown-item divided class="dropdown-item">
+                    Изменить клиента
                   </el-dropdown-item>
                 </el-button>
               </el-row>
@@ -147,10 +155,12 @@
 
 <script>
 import ServiceAddDialog from "../components/ServiceAddDialog.vue";
+import ClientAddDialog from "../components/ClientAddDialog.vue";
 
 export default {
   components: {
     ServiceAddDialog,
+    ClientAddDialog,
   },
   data() {
     return {
@@ -306,14 +316,75 @@ export default {
         deal_add: client.DEAL_ADD ? client.DEAL_ADD : "Не указано",
         code: client.CODE,
         manager: users[client.MANAGER],
+        manager_id: client.MANAGER,
         creation_date: client.CREATION_DATE,
+        deal_cont: client.DEAL_CONT,
+        tech_cont: client.TECH_CONT,
       };
+      this.techCont = [];
+      this.dealCont = [];
       client.DEAL_CONT.length
         ? this.getContactById(client.DEAL_CONT, "deal")
         : (this.dealCont = ["Не указано"]);
       client.TECH_CONT.length
         ? this.getContactById(client.TECH_CONT, "tech")
         : (this.techCont = ["Не указано"]);
+    },
+    showEditClientDialog() {
+      let form = {};
+      form.title = "Изменить клиента";
+      form.code = this.clientNameParams.code;
+      form.short_name = this.clientNameParams.name;
+      form.full_name =
+        this.clientNameParams.full_name == "Не указано"
+          ? ""
+          : this.clientNameParams.full_name;
+      form.inn = this.clientNameParams.inn;
+      form.deal_num = this.clientNameParams.deal_num;
+      let dateArrDeal = this.clientNameParams.deal_date.split(".");
+      form.deal_date = new Date(
+        dateArrDeal[2],
+        dateArrDeal[1] - 1,
+        dateArrDeal[0]
+      );
+      form.deal_sub =
+        this.clientNameParams.deal_sub == "Не указано"
+          ? ""
+          : this.clientNameParams.deal_sub;
+      form.deal_add =
+        this.clientNameParams.deal_add == "Не указано"
+          ? ""
+          : this.clientNameParams.deal_add;
+      form.cont_deal = this.clientNameParams.deal_cont;
+      form.cont_tech = this.clientNameParams.tech_cont;
+      let options = [];
+      for (let i = 0; i < this.clientNameParams.deal_cont.length; i++) {
+        options.push({
+          label: this.dealCont[i],
+          value: this.clientNameParams.deal_cont[i],
+        });
+      }
+      for (let i = 0; i < this.clientNameParams.tech_cont.length; i++) {
+        let isExist = options.find(
+          (element) => element.value === this.clientNameParams.tech_cont[i]
+        );
+        if (!isExist) {
+          options.push({
+            label: this.techCont[i],
+            value: this.clientNameParams.tech_cont[i],
+          });
+        }
+      }
+      console.log(options);
+      form.options = options;
+      form.manager = this.clientNameParams.manager_id;
+      form.isClientEdit = true;
+      this.$store.commit("nullClientAddForm");
+      this.$store.commit("setClientAddForm", form);
+      this.$store.commit("showAddClientDialog");
+    },
+    refreshClientParams() {
+      this.getClientNameParams();
     },
   },
   async created() {
@@ -346,6 +417,7 @@ export default {
   font-size: 15px;
   color: #606266;
   width: 180px;
+  padding: 0px;
 }
 .icon {
   font-size: 28px;

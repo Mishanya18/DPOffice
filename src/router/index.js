@@ -7,6 +7,10 @@ const routes = [
     redirect: "clients",
   },
   {
+    path: "/:domain",
+    redirect: "clients",
+  },
+  {
     path: "/clients",
     name: "clients",
     component: ClientList,
@@ -51,24 +55,24 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
-let is_bitrix_call = "";
+// let is_bitrix_call = "";
 
-router.beforeEach((to, _, next) => {
-  if (is_bitrix_call != "bitrix.d-platforms.ru") {
-    if (to.query.DOMAIN != "bitrix.d-platforms.ru") {
-      if (to.path == "/pagenotfound") {
-        next();
-      } else {
-        next({ name: "pagenotfound" });
-        console.log("GO AWAY!");
-      }
-    } else {
-      is_bitrix_call = to.query.DOMAIN;
-      next();
-    }
-  } else {
-    next();
-  }
-});
+// router.beforeEach((to, _, next) => {
+//   if (is_bitrix_call != "bitrix.d-platforms.ru") {
+//     if (to.query.DOMAIN != "bitrix.d-platforms.ru") {
+//       if (to.path == "/pagenotfound") {
+//         next();
+//       } else {
+//         next({ name: "pagenotfound" });
+//         console.log("GO AWAY!");
+//       }
+//     } else {
+//       is_bitrix_call = to.query.DOMAIN;
+//       next();
+//     }
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;

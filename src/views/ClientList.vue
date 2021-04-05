@@ -102,18 +102,19 @@ export default {
     },
     showAddClientDialog() {
       let form = {};
+      form.title = "Добавить клиента";
       form.code = "";
       form.short_name = "";
       form.full_name = "";
       form.inn = 0;
       form.deal_num = "";
-      // let date = new Date();
       form.deal_date = "";
       form.deal_sub = "";
       form.cont_deal = [];
       form.cont_tech = [];
-      form.sale = 0;
+      form.deal_add = "";
       form.manager = "";
+      form.isClientEdit = false;
       this.$store.commit("nullClientAddForm");
       this.$store.commit("setClientAddForm", form);
       this.$store.commit("showAddClientDialog");
@@ -148,13 +149,6 @@ export default {
         this.showDeleteButton = false;
       }
     },
-    // toggleSelection(row) {
-    //   if (row) {
-    //     this.$refs.multipleTable.toggleRowSelection(row);
-    //   } else {
-    //     this.$refs.multipleTable.clearSelection();
-    //   }
-    // },
     showElseButtonInRow(row) {
       this.visibleArray[row.id] = true;
     },

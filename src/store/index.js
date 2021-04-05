@@ -318,7 +318,7 @@ export default createStore({
   },
   actions: {
     getClientsFromBitrix({ commit }) {
-      fetch(
+      return fetch(
         "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=38&IBLOCK_TYPE_ID=lists"
       )
         .then((response) => {
@@ -338,7 +338,6 @@ export default createStore({
               DEAL_ADD: GetContent(data.result[i].PROPERTY_191),
               DEAL_CONT: GetContacts(data.result[i].PROPERTY_192),
               TECH_CONT: GetContacts(data.result[i].PROPERTY_193),
-              // SALE: GetContent(data.result[i].PROPERTY_194),
               MANAGER: GetContent(data.result[i].PROPERTY_205),
               CODE: data.result[i].CODE,
               CREATION_DATE: data.result[i].DATE_CREATE,
