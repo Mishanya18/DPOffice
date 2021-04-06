@@ -62,6 +62,7 @@
         @selection-change="handleSelectionChange"
         ref="multipleTable"
         @row-click="showEditDialogForm"
+        :row-style="rowStyle"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="name" label="Название" min-width="100">
@@ -385,6 +386,9 @@ export default {
     },
     refreshClientParams() {
       this.getClientNameParams();
+    },
+    rowStyle() {
+      return "cursor: pointer";
     },
   },
   async created() {

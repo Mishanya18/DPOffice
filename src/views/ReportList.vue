@@ -1,6 +1,10 @@
 <template>
   <div>
-    <el-table :data="gridDataReportClients" @row-click="linkToPage">
+    <el-table
+      :data="gridDataReportClients"
+      @row-click="linkToPage"
+      :row-style="rowStyle"
+    >
       <el-table-column prop="client_name" label="Клиент" min-width="350">
         <template #default="scope">
           <span class="text">{{ scope.row.client_name }}</span>
@@ -77,6 +81,9 @@ export default {
     linkToPage(cell) {
       // console.log(cell);
       this.$router.push({ path: "/reports/" + cell.code });
+    },
+    rowStyle() {
+      return "cursor: pointer";
     },
   },
   mounted() {

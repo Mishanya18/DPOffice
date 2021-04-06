@@ -54,11 +54,12 @@
           ref="multipleTable"
           @selection-change="handleSelectionChange"
           @row-click="linkToPage"
-          @cell-mouse-enter="showElseButtonInRow"
-          @cell-mouse-leave="hideElseButtonInRow"
+          :row-style="rowStyle"
         >
           <el-table-column type="selection" width="45"> </el-table-column>
           <el-table-column prop="name" label="Имя" min-width="300">
+          </el-table-column>
+          <el-table-column prop="code" label="Code" min-width="150">
           </el-table-column>
           <el-table-column
             prop="deal_num"
@@ -149,11 +150,8 @@ export default {
         this.showDeleteButton = false;
       }
     },
-    showElseButtonInRow(row) {
-      this.visibleArray[row.id] = true;
-    },
-    hideElseButtonInRow(row) {
-      this.visibleArray[row.id] = false;
+    rowStyle() {
+      return "cursor: pointer";
     },
   },
   computed: {
@@ -206,5 +204,9 @@ export default {
 .dropdown-item {
   font-family: IBM Plex Sans, ArialMT, sans-serif;
   font-size: 15px;
+}
+tr {
+  cursor: pointer !important;
+  /* background-color: blue; */
 }
 </style>
