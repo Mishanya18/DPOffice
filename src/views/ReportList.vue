@@ -26,35 +26,9 @@
 </template>
 
 <script>
-function formatDate(date, format) {
-  let month;
-  let day;
-  if (date.getDate() < 10) {
-    day = "0" + date.getDate();
-  } else {
-    day = date.getDate();
-  }
-  if (date.getMonth() + 1 < 10) {
-    month = "0" + (date.getMonth() + 1);
-  } else {
-    month = date.getMonth() + 1;
-  }
-  const map = {
-    dd: day,
-    mm: month,
-    yyyy: date.getFullYear(),
-  };
-
-  return format.replace(/dd|mm|yyyy/gi, (matched) => map[matched]);
-}
-
 export default {
   data() {
     return {
-      // periodStartDate: "",
-      // periodEndDate: "",
-      // month: "",
-      // hours: 0,
       billing: [],
     };
   },
@@ -79,7 +53,6 @@ export default {
   },
   methods: {
     linkToPage(cell) {
-      // console.log(cell);
       this.$router.push({ path: "/reports/" + cell.code });
     },
     rowStyle() {
@@ -87,22 +60,6 @@ export default {
     },
   },
   mounted() {
-    let date = new Date();
-    this.month = formatDate(
-      new Date(date.getFullYear(), date.getMonth(), 0),
-      "mm.yyyy"
-    );
-    this.periodStartDate = formatDate(
-      new Date(date.getFullYear(), date.getMonth() - 1, 1),
-      "dd.mm.yyyy"
-    );
-    this.periodEndDate = formatDate(
-      new Date(date.getFullYear(), date.getMonth(), 0),
-      "dd.mm.yyyy"
-    );
-    this.hours =
-      new Date(date.getFullYear(), date.getMonth(), 0).getDate() * 24;
-    this.$store.dispatch("getBillsSectionsFromBitrix");
     if (this.$store.getters.servicvesData) {
       this.$store.dispatch("getDCFromBitrix");
       this.$store.dispatch("getServicesFromBitrix");

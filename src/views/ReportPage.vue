@@ -162,10 +162,9 @@ export default {
   },
   methods: {
     getClientBilling() {
-      let billSections = this.$store.getters.billingSectionsData;
       return fetch(
-        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=43&IBLOCK_TYPE_ID=lists&FILTER[SECTION_ID]=" +
-          billSections[formatDate(this.month, "mm.yyyy")] +
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=43&IBLOCK_TYPE_ID=lists&FILTER[PROPERTY_278]=" +
+          formatDate(this.month, "mm.yyyy") +
           "&FILTER[NAME]=" +
           this.clientCode.toLowerCase()
       )
@@ -173,7 +172,6 @@ export default {
           return response.json();
         })
         .then((data) => {
-          // console.log(data.result.length);
           if (data.result.length != 0) {
             let clientBilling = {
               ID: data.result[0].ID,

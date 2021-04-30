@@ -21,17 +21,6 @@
                   </el-dropdown-item>
                 </el-button>
               </el-row>
-              <el-row>
-                <el-button
-                  type="text"
-                  class="link"
-                  @click="showEditClientDialog"
-                >
-                  <el-dropdown-item divided class="dropdown-item">
-                    Изменить клиента
-                  </el-dropdown-item>
-                </el-button>
-              </el-row>
               <el-row class="mar-pad-element" v-if="showDeleteButton">
                 <el-popconfirm
                   confirm-button-text="Да"
@@ -45,7 +34,37 @@
                   <template #reference>
                     <el-button type="text" class="link p-0">
                       <el-dropdown-item class="dropdown-item">
-                        Удалить услуги
+                        Удалить услугу
+                      </el-dropdown-item>
+                    </el-button>
+                  </template>
+                </el-popconfirm>
+              </el-row>
+              <el-row>
+                <el-button
+                  type="text"
+                  class="link"
+                  @click="showEditClientDialog"
+                >
+                  <el-dropdown-item divided class="dropdown-item">
+                    Изменить клиента
+                  </el-dropdown-item>
+                </el-button>
+              </el-row>
+              <el-row class="mar-pad-element">
+                <el-popconfirm
+                  confirm-button-text="Да"
+                  cancel-button-text="Нет"
+                  icon="el-icon-info"
+                  icon-color="red"
+                  title="Вы уверены?"
+                  @confirm="deleteClient"
+                  placement="top"
+                >
+                  <template #reference>
+                    <el-button type="text" class="link p-0">
+                      <el-dropdown-item class="dropdown-item">
+                        Удалить клиента
                       </el-dropdown-item>
                     </el-button>
                   </template>
@@ -62,7 +81,7 @@
         @selection-change="handleSelectionChange"
         ref="multipleTable"
         @row-click="showEditDialogForm"
-        :row-style="rowStyle"
+        row-style="cursor: pointer"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="name" label="Название" min-width="100">
@@ -387,9 +406,26 @@ export default {
     refreshClientParams() {
       this.getClientNameParams();
     },
-    rowStyle() {
-      return "cursor: pointer";
-    },
+    // deleteClient() {
+    //   fetch(
+    //     "https://bitrix.d-platforms.ru/rest/54/j2ddrqogky8h0nmn/lists.element.delete.json?IBLOCK_TYPE_ID=lists&IBLOCK_ID=38&ELEMENT_ID=" +
+    //       element.id
+    //   )
+    //     .then((response) => {
+    //       return response.json();
+    //     })
+    //     .then((data) => {
+    //       if (data.error) {
+    //         this.$message.error("Не удалось удалить клиента.");
+    //       } else {
+    //         this.$message({
+    //           message: "Клиент успешно удален.",
+    //           type: "success",
+    //         });
+    //       }
+    //       this.$store.dispatch("getClientsFromBitrix");
+    //     });
+    // },
   },
   async created() {
     if (this.$store.getters.servicvesData.length == 0) {
