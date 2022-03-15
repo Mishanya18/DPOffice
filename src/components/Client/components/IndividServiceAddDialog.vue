@@ -148,11 +148,14 @@ function formatDate(date, format) {
 }
 
 export default {
+  props: ["forma", "visible"],
+  emits: ["dialogClose", "refresh"],
   data() {
     return {
       formLabelWidth: "80%",
       editDialogVisible: false,
-      form: {},
+      dialogFormVisible: this.visible,
+      form: this.forma,
       amountVisible: false,
       rules: {
         DC: [
@@ -187,45 +190,33 @@ export default {
     };
   },
   computed: {
-    dialogFormVisible() {
-      let formObj = this.$store.getters.clientServiceForm;
-      this.setForm(formObj);
-      if (this.form.service) {
-        this.toggleAmountVisible(this.form.service);
-      } else {
-        this.setVisible(false);
-      }
-      return this.$store.getters.dialogClientServiceAddVisible;
-    },
     optionsDC() {
       return this.$store.getters.clientAddServiceDCs;
     },
   },
   methods: {
     getDataCenters(val) {
-      this.form.optionsServices = this.$store.getters.clientAddServiceServices(
+      this.form.optionsServices = this.$store.getters.clientAddIndividService(
         val[1]
       );
     },
     dialogClose() {
-      this.$store.commit("closeAddClientServiceDialog");
+      this.$emit("dialogClose");
     },
     showAddDialogForm(clientID) {
-      let form = {};
-      form.title = "Добавить услугу";
-      form.startDateTime = "";
-      form.endDateTime = "";
-      form.sale_num = 0;
-      form.service = "";
-      form.DC = [];
-      form.optionsServices = [];
-      form.isEditDialog = false;
-      form.amount = 0;
-      form.editDialogVisible = false;
-      form.clientID = clientID;
-      this.$store.commit("nullClientServiceForm");
-      this.$store.commit("setClientServiceForm", form);
-      this.$store.commit("showAddClientServiceDialog");
+      let oneElseForm = {};
+      oneElseForm.title = "Добавить услугу";
+      oneElseForm.startDateTime = "";
+      oneElseForm.endDateTime = "";
+      oneElseForm.sale_num = 0;
+      oneElseForm.service = "";
+      oneElseForm.DC = [];
+      oneElseForm.optionsServices = [];
+      oneElseForm.isEditDialog = false;
+      oneElseForm.amount = 0;
+      oneElseForm.editDialogVisible = false;
+      oneElseForm.clientID = clientID;
+      this.form = oneElseForm;
     },
     commitFormAdd(more) {
       this.$refs["formSvc"].validate((valid) => {

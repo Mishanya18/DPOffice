@@ -7,6 +7,11 @@ const UNIT_ARRAY = {
   94: "шт./час",
 };
 
+const RIGHTS_ARRAY = {
+  102: "Read",
+  103: "FullAccess",
+};
+
 function GetContacts(obj) {
   let res = new Array();
   for (var key in obj) {
@@ -36,6 +41,8 @@ export default createStore({
     clientServiceForm: {},
     clientClientForm: {},
     billingSections: {},
+    currentUser: {},
+    isLoggedOn: false,
   },
   getters: {
     usersData(state) {
@@ -80,6 +87,7 @@ export default createStore({
       let gridPost = [];
       state.posts.forEach((element) => {
         const postavshicFromResult = {
+          id: element.ID,
           name: element.NAME,
           deal_num: element.DEAL_NUM,
           deal_date: element.DEAL_DATE,
@@ -91,19 +99,7 @@ export default createStore({
     },
     postPageData: (state) => (name) => {
       let postObj = state.posts.find((post) => post.NAME === name);
-      let postPage = {
-        "Краткое наименование": postObj.NAME,
-        "Полное наименование": postObj.FULL_NAME,
-        ИНН: postObj.INN,
-        "Номер договора": postObj.DEAL_NUM,
-        "Дата договора": postObj.DEAL_DATE,
-        "Предмет договора": postObj.DEAL_SUB,
-        "Контактное лицо по договору": postObj.DEAL_CONT,
-        "Контактное лицо техподдержки": postObj.TECH_CONT,
-        "Ответственный менеджер": postObj.MANAGER,
-        "Дата создания": postObj.CREATION_DATE,
-      };
-      return postPage;
+      return postObj;
     },
     postsLinksData(state) {
       let postsLink = [];
@@ -120,6 +116,39 @@ export default createStore({
           full_name: element.FULL_NAME,
           unit: UNIT_ARRAY[element.UNIT],
           price: element.PRICE,
+          data_center: state.DCs.find((DC) => DC.ID === element.DATA_CENTER)
+            .NAME,
+        };
+        gridService.push(serviceFromResult);
+      });
+      return gridService;
+    },
+    partnerServices: (state) => (dc) => {
+      let gridService = [];
+      state.services.forEach((element) => {
+        if (element.DATA_CENTER == dc) {
+          const serviceFromResult = {
+            id: element.ID,
+            name: element.NAME,
+            full_name: element.FULL_NAME,
+            unit: UNIT_ARRAY[element.UNIT],
+            price: element.PRICE,
+            data_center: state.DCs.find((DC) => DC.ID === element.DATA_CENTER)
+              .NAME,
+          };
+          gridService.push(serviceFromResult);
+        }
+      });
+      return gridService;
+    },
+    serviceGridDataPL2(state) {
+      let gridService = [];
+      state.services.forEach((element) => {
+        const serviceFromResult = {
+          name: element.NAME,
+          full_name: element.FULL_NAME,
+          unit: UNIT_ARRAY[element.UNIT],
+          price: element.PRICE_PL2,
           data_center: state.DCs.find((DC) => DC.ID === element.DATA_CENTER)
             .NAME,
         };
@@ -154,6 +183,7 @@ export default createStore({
             service_id: element.SERVICE,
             billing: serv.BILLING,
             visible: false,
+            info: element.INFO,
           };
           clientServices.push(service);
         }
@@ -191,7 +221,31 @@ export default createStore({
       let options = [];
       state.services.forEach((element) => {
         let opt = {};
-        if (element.DATA_CENTER === DCID) {
+        if (
+          element.DATA_CENTER === DCID &&
+          !element.INDIVIDUAL &&
+          element.BILLING != 95
+        ) {
+          opt = {
+            value: element.ID,
+            label: element.NAME,
+          };
+        }
+        if (Object.keys(opt).length != 0) {
+          options.push(opt);
+        }
+      });
+      return options;
+    },
+    clientAddIndividService: (state) => (DCID) => {
+      let options = [];
+      state.services.forEach((element) => {
+        let opt = {};
+        if (
+          element.DATA_CENTER === DCID &&
+          element.INDIVIDUAL == 1 &&
+          element.BILLING == 95
+        ) {
           opt = {
             value: element.ID,
             label: element.NAME,
@@ -243,6 +297,15 @@ export default createStore({
     },
     clientIDByCode: (state) => (code) => {
       return state.clients.find((client) => client.CODE === code).ID;
+    },
+    clientByCode: (state) => (code) => {
+      return state.clients.find((client) => client.CODE === code);
+    },
+    currentUser(state) {
+      return state.currentUser;
+    },
+    isLogged(state) {
+      return state.isLoggedOn;
     },
   },
   mutations: {
@@ -315,6 +378,18 @@ export default createStore({
     nullBillingSections(state) {
       state.billingSections = {};
     },
+    setCurrentUser(state, payload) {
+      state.currentUser = payload;
+    },
+    nullCurrentUser(state) {
+      state.currentUser = {};
+    },
+    LogOn(state) {
+      state.isLoggedOn = true;
+    },
+    LogOff(state) {
+      state.isLoggedOn = false;
+    },
   },
   actions: {
     getClientsFromBitrix({ commit }) {
@@ -339,7 +414,9 @@ export default createStore({
               DEAL_CONT: GetContacts(data.result[i].PROPERTY_192),
               TECH_CONT: GetContacts(data.result[i].PROPERTY_193),
               MANAGER: GetContent(data.result[i].PROPERTY_205),
-              CODE: data.result[i].CODE,
+              CODE: GetContent(data.result[i].PROPERTY_298),
+              PRICE_LIST: GetContent(data.result[i].PROPERTY_295),
+              IN_TEST: GetContent(data.result[i].PROPERTY_308),
               CREATION_DATE: data.result[i].DATE_CREATE,
             };
             Clients.push(clientFromResult);
@@ -367,10 +444,10 @@ export default createStore({
               DEAL_NUM: GetContent(data.result[i].PROPERTY_198),
               DEAL_DATE: GetContent(data.result[i].PROPERTY_199),
               DEAL_SUB: GetContent(data.result[i].PROPERTY_200),
-              DEAL_CONT: GetContent(data.result[i].PROPERTY_202),
-              TECH_CONT: GetContent(data.result[i].PROPERTY_203),
+              DEAL_CONT: GetContacts(data.result[i].PROPERTY_202),
+              TECH_CONT: GetContacts(data.result[i].PROPERTY_203),
               MANAGER: GetContent(data.result[i].PROPERTY_204),
-              CREATION_DATE: GetContent(data.result[i].DATE_CREATE),
+              CREATION_DATE: data.result[i].DATE_CREATE,
             };
             Posts.push(postFromResult);
           }
@@ -420,6 +497,7 @@ export default createStore({
               PRICE: GetContent(data.result[i].PROPERTY_227),
               DATA_CENTER: GetContent(data.result[i].PROPERTY_228),
               BILLING: GetContent(data.result[i].PROPERTY_242),
+              INDIVIDUAL: GetContent(data.result[i].PROPERTY_309),
             };
             Services.push(serviceFromResult);
           }
@@ -481,6 +559,7 @@ export default createStore({
               AMOUNT: GetContent(data.result[i].PROPERTY_237),
               STARTDATETIME: GetContent(data.result[i].PROPERTY_238),
               ENDDATETIME: GetContent(data.result[i].PROPERTY_239),
+              INFO: GetContent(data.result[i].PROPERTY_307),
             };
             clientsServices.push(CSFromResult);
           }
@@ -515,6 +594,42 @@ export default createStore({
         resolve(getters.serviceByID(service_id));
       });
     },
+    getCurrentUser({ commit }, userInfo) {
+      commit("nullCurrentUser");
+      return fetch(
+        "https://bitrix.d-platforms.ru/rest/54/24zaixqjk1cndtsp/lists.element.get.json?IBLOCK_ID=51&IBLOCK_TYPE_ID=lists&FILTER[PROPERTY_313]=" +
+          userInfo.email
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          if (GetContent(data.result[0].PROPERTY_312) == userInfo.password) {
+            return fetch(
+              "https://bitrix.d-platforms.ru/rest/54/n022plnkzrgil3rm/user.get.json?ID=" +
+                GetContent(data.result[0].PROPERTY_310)
+            )
+              .then((response) => {
+                return response.json();
+              })
+              .then((data2) => {
+                commit("setCurrentUser", {
+                  ID: GetContent(data.result[0].PROPERTY_310),
+                  RIGHT: RIGHTS_ARRAY[GetContent(data.result[0].PROPERTY_311)],
+                  PASSWORD: GetContent(data.result[0].PROPERTY_312),
+                  EMAIL: GetContent(data.result[0].PROPERTY_313),
+                  ISLOGGEDIN: true,
+                  NAME: data2.result[0].NAME,
+                  LAST_NAME: data2.result[0].LAST_NAME,
+                  PASSWDCHA__ID: data.result[0].ID,
+                  PASSWDCHA_NAME: data.result[0].NAME,
+                });
+                commit("LogOn");
+              });
+          } else {
+            return false;
+          }
+        });
+    },
   },
-  modules: {},
 });

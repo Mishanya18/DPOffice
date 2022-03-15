@@ -4,13 +4,6 @@
     <client-add-dialog @edited="refreshClientParams" />
 
     <el-tabs type="card">
-      <el-tab-pane label="Dashboard">
-        <el-row>
-          <el-col :span="24">
-            <dashboard />
-          </el-col>
-        </el-row>
-      </el-tab-pane>
       <el-tab-pane label="Информация о клиенте">
         <el-row>
           <el-col :span="24">
@@ -53,12 +46,11 @@
 <script>
 import ServiceAddDialog from "../components/ServiceAddDialog.vue";
 import ClientAddDialog from "../components/ClientAddDialog.vue";
-import ClientDescription from "../components/Client/ClientDescription.vue";
-import ClientServiceTable from "../components/Client/ClientServiceTable.vue";
-import ClientOfflineServiceTable from "../components/Client/ClientOfflineServiceTable.vue";
-import ClientConsumption from "../components/Client/ClientConsumption.vue";
-import ClientPartnersConsumption from "../components/Client/ClientPartnersConsumption.vue";
-import Dashboard from "../components/Dashboard/Dashboard.vue";
+import ClientDescription from "../components/ClientsInTest/ClientInTestDescription.vue";
+import ClientServiceTable from "../components/ClientsInTest/ClientInTestServiceTable.vue";
+import ClientOfflineServiceTable from "../components/ClientsInTest/ClientInTestOfflineServiceTable.vue";
+import ClientConsumption from "../components/ClientsInTest/ClientInTestConsumption.vue";
+import ClientPartnersConsumption from "../components/ClientsInTest/ClientInTestPartnersConsumption.vue";
 
 export default {
   components: {
@@ -69,7 +61,6 @@ export default {
     ClientOfflineServiceTable,
     ClientConsumption,
     ClientPartnersConsumption,
-    Dashboard,
   },
   data() {
     return {
@@ -131,7 +122,6 @@ export default {
   font-family: IBM Plex Sans, ArialMT, sans-serif;
   font-size: 16px;
   margin-bottom: 5px;
-  /* color: #606266; */
 }
 .param {
   font-family: IBM Plex Sans, ArialMT, sans-serif;

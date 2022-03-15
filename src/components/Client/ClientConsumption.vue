@@ -2,7 +2,6 @@
   <el-container direction="vertical">
     <el-row type="flex" align="middle">
       <el-col :span="23">
-        <span class="label-style">Отчётный месяц</span>
         <el-date-picker
           v-model="month"
           type="month"
@@ -18,6 +17,8 @@
         <span class="value-style">{{ periodStartDate }}</span>
         <span class="label-style ms-3">Конец периода:</span>
         <span class="value-style">{{ periodEndDate }}</span>
+        <span class="label-style ms-3">Число часов в периоде:</span>
+        <span class="value-style">{{ hours }}</span>
       </el-col>
       <el-col :span="1">
         <el-dropdown trigger="click">
@@ -37,11 +38,6 @@
           </template>
         </el-dropdown>
       </el-col>
-    </el-row>
-
-    <el-row style="padding-top: 10px;">
-      <span class="label-style">Число часов в отчетном периоде:</span>
-      <span class="value-style">{{ hours }}</span>
     </el-row>
 
     <el-row>
@@ -101,9 +97,9 @@
         </el-table-column>
         <el-table-column prop="amount" label="Объем за период" min-width="145">
         </el-table-column>
-        <el-table-column prop="summa" label="Стоимость" min-width="100">
+        <el-table-column prop="summa" label="Стоимость" min-width="145">
           <template #default="scope">
-            <span>{{ formatPrice(scope.row.summa) }}</span>
+            <span>{{ formatPrice(scope.row.summa.toString()) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -177,7 +173,7 @@ export default {
               ID: data.result[0].ID,
               code: data.result[0].NAME,
               cpu: GetContent(data.result[0].PROPERTY_229),
-              memory: GetContent(data.result[0].PROPERTY_230),
+              ram: GetContent(data.result[0].PROPERTY_230),
               sata: GetContent(data.result[0].PROPERTY_231),
               sas: GetContent(data.result[0].PROPERTY_232),
               ssd: GetContent(data.result[0].PROPERTY_233),
@@ -212,6 +208,7 @@ export default {
       });
     },
     cookGridData() {
+      this.summa = 0;
       this.gridDataReportClient = [];
       this.clientService.forEach((service) => {
         //Вычисление даты начала пользования услугой в отчетном периоде
@@ -252,7 +249,7 @@ export default {
             serviceEndArr[1] - 1,
             serviceEndArr[0]
           );
-          if (serviceEndDate < periodEndDate) {
+          if (serviceEndDate > periodEndDate) {
             endDate = this.periodEndDate;
             serviceEnds = periodEndDate;
           } else {
@@ -269,20 +266,20 @@ export default {
           );
           serviceEnds = periodEndDatE;
         }
-
         let partnerService;
         this.$store
           .dispatch("getReportPagePartnerService", service.service_id)
           .then((res) => {
             partnerService = res;
+            let price = partnerService.PRICE;
             //Вычисление цены с учётом дисконта
-            let costAfterSale =
-              partnerService.PRICE -
-              (partnerService.PRICE / 100) * service.sale;
+            let costAfterSale = price - (price / 100) * service.sale;
             //Вычисление количества потребленной услуги в отчетном периоде
             let amount;
             if (service.billing === "95") {
-              amount = this.clientBilling[service.name.toLowerCase()];
+              amount = this.clientBilling[
+                service.name.toLowerCase().split(" ")[0]
+              ];
             } else {
               amount = service.amount;
             }
@@ -298,13 +295,14 @@ export default {
             } else {
               amount_multiplier = 1;
             }
+            //Округление до 3-х знаков после запятой
+            // costAfterSale = Math.round(costAfterSale * 1000) / 1000;
+            // amount = Math.round(amount * 1000) / 1000;
             //Вычисление суммы, удерживаемое с клиента за пользование услугой в отчётном периоде
             let summ = costAfterSale * amount * amount_multiplier;
-            //Округление до 3-х знаков после запятой
-            costAfterSale = Math.round(costAfterSale * 1000) / 1000;
-            amount = Math.round(amount * 1000) / 1000;
             this.summa += summ;
-            summ = summ.toFixed(2);
+            // summ = summ.toFixed(2);
+            summ = Math.round(summ * 100) / 100;
             //Создание строки таблицы для потребленной услуги
             const clientReport = {
               start_date_deal: service.startDateTime.split(" ")[0],
@@ -312,10 +310,10 @@ export default {
               end_date_period: endDate,
               service_short_name: partnerService.NAME,
               service_full_name: partnerService.FULL_NAME,
-              service_cost: partnerService.PRICE,
+              service_cost: price,
               sale: service.sale + "%",
-              cost_sale: costAfterSale,
-              amount: amount,
+              cost_sale: Math.round(costAfterSale * 1000) / 1000,
+              amount: Math.round(amount * 1000) / 1000,
               summa: summ,
             };
             this.gridDataReportClient.push(clientReport);

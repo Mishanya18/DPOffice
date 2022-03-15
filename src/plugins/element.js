@@ -1,7 +1,7 @@
-import ElementPlus from 'element-plus'
-import 'element-plus/lib/theme-chalk/index.css'
-import locale from 'element-plus/lib/locale/lang/ru'
+import ElementPlus from "element-plus";
+import "element-plus/theme-chalk/index.css";
+import ru from "element-plus/es/locale/lang/ru.js";
 
 export default (app) => {
-  app.use(ElementPlus, { locale })
-}
+  app.use(ElementPlus, { locale: ru });
+};

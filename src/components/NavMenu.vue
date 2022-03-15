@@ -13,14 +13,14 @@
       <i class="el-icon-partly-cloudy"></i>
       <span>Партнеры</span>
     </el-menu-item>
-    <el-menu-item index="3" @click="linkToServices">
+    <el-menu-item index="3" @click="linkToClientsInTest">
       <i class="el-icon-shopping-bag-2"></i>
-      <span>Услуги</span>
+      <span>Тест</span>
     </el-menu-item>
-    <el-menu-item index="4" @click="linkToReports">
+    <!-- <el-menu-item index="4" @click="linkToReports">
       <i class="el-icon-data-line"></i>
       <span>Отчёт</span>
-    </el-menu-item>
+    </el-menu-item> -->
   </el-menu>
 </template>
 
@@ -32,8 +32,8 @@ export default {
       selected: {
         clients: true,
         partners: false,
-        services: false,
-        reports: false,
+        clientsintest: false,
+        // reports: false,
       },
     };
   },
@@ -42,30 +42,30 @@ export default {
       this.$router.push({ path: "/clients" });
       this.selected.clients = true;
       this.selected.partners = false;
-      this.selected.services = false;
+      this.selected.clientsintest = false;
       this.selected.reports = false;
     },
     linkToPosts() {
       this.$router.push({ path: "/partner" });
       this.selected.clients = false;
       this.selected.partners = true;
-      this.selected.services = false;
+      this.selected.clientsintest = false;
       this.selected.reports = false;
     },
-    linkToServices() {
-      this.$router.push({ path: "/service" });
+    linkToClientsInTest() {
+      this.$router.push({ path: "/clientsintest" });
       this.selected.clients = false;
       this.selected.partners = false;
-      this.selected.services = true;
+      this.selected.clientsintest = true;
       this.selected.reports = false;
     },
-    linkToReports() {
-      this.$router.push({ path: "/reports" });
-      this.selected.clients = false;
-      this.selected.partners = false;
-      this.selected.services = false;
-      this.selected.reports = true;
-    },
+    // linkToReports() {
+    //   this.$router.push({ path: "/reports" });
+    //   this.selected.clients = false;
+    //   this.selected.partners = false;
+    //   this.selected.clientsintest = false;
+    //   this.selected.reports = true;
+    // },
   },
 };
 </script>
